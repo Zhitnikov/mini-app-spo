@@ -1,0 +1,54 @@
+{
+  "name": "nextjs-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/leaflet": "^1.9.21",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vkontakte/vk-bridge": "^2.15.11",
+    "axios": "^1.13.6",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "daisyui": "^5.5.19",
+    "graphql": "^16.13.1",
+    "graphql-yoga": "^5.18.0",
+    "jsonwebtoken": "^9.0.3",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.577.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-leaflet": "^5.0.0",
+    "react-qr-code": "^2.0.18",
+    "react-router-dom": "^7.13.1",
+    "swagger-jsdoc": "^6.2.8",
+    "tailwind-merge": "^3.5.0",
+    "vite": "^8.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.6.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.3.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.6",
+    "prisma": "^6.6.0",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}

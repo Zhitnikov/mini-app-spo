@@ -1,0 +1,226 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum UserRole {
+  CANDIDATE
+  FIGHTER
+  COMMANDER
+  COMMANDANT
+  EXTERNAL_COMMISSAR
+  INTERNAL_COMMISSAR
+  METHODIST
+  PRESS_CENTER_HEAD
+  COMSOSTAV
+}
+
+enum EventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ShopItemType {
+  BACKGROUND
+  BADGE
+  CAT_ITEM
+  ACHIEVEMENT
+}
+
+
+model User {
+  id          String   @id @default(cuid())
+  vkId        Int      @unique
+  fullName    String
+  firstName   String   @default("")
+  lastName    String   @default("")
+  role        UserRole @default(CANDIDATE)
+  coins       Int      @default(0)
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  backgroundId  String?
+  background    ShopItem? @relation("UserBackground", fields: [backgroundId], references: [id])
+
+  attendances     EventAttendee[]
+  organizedEvents Event[]         @relation("EventOrganizer")
+  purchases       UserShopItem[]
+  equippedBadges  UserBadge[]
+  catConfig       CatConfig?
+  achievements    UserAchievement[]
+  notifications   Notification[]
+  sentCoins       CoinTransaction[] @relation("CoinSender")
+  receivedCoins   CoinTransaction[] @relation("CoinReceiver")
+  pollResponses   PollResponse[]
+}
+
+
+model Event {
+  id               String      @id @default(cuid())
+  title            String
+  subtitle         String      @default("")
+  shortDescription String      @default("")
+  description      String      @default("")
+  date             DateTime
+  dateLabel        String      @default("")
+  location         String      @default("")
+  latitude         Float?
+  longitude        Float?
+  imageUrl         String?
+  pollQuestion     String      @default("")
+  status           EventStatus @default(PENDING)
+  coinsReward      Int         @default(50)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  organizerId String
+  organizer   User   @relation("EventOrganizer", fields: [organizerId], references: [id])
+
+  attendances   EventAttendee[]
+  polls         Poll[]
+  pollResponses PollResponse[]
+}
+
+model EventAttendee {
+  id          String    @id @default(cuid())
+  userId      String
+  eventId     String
+  registeredAt DateTime @default(now())
+  confirmedAt  DateTime?
+  coinsAwarded Boolean   @default(false)
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+
+model Poll {
+  id       String @id @default(cuid())
+  eventId  String
+  question String
+
+  event     Event          @relation(fields: [eventId], references: [id])
+  responses PollResponse[]
+}
+
+model PollResponse {
+  id      String @id @default(cuid())
+  pollId  String
+  userId  String
+  eventId String
+  answer  String
+
+  poll  Poll  @relation(fields: [pollId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([pollId, userId])
+}
+
+
+model ShopItem {
+  id              String       @id @default(cuid())
+  type            ShopItemType
+  name            String
+  description     String       @default("")
+  price           Int
+  icon            String?
+  imageUrl        String?
+  requiresFighter Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+
+  purchases       UserShopItem[]
+  equippedBadges  UserBadge[]
+  usersBackground User[]        @relation("UserBackground")
+}
+
+model UserShopItem {
+  id         String   @id @default(cuid())
+  userId     String
+  itemId     String
+  purchasedAt DateTime @default(now())
+
+  user User     @relation(fields: [userId], references: [id])
+  item ShopItem @relation(fields: [itemId], references: [id])
+
+  @@unique([userId, itemId])
+}
+
+
+model UserBadge {
+  id       String @id @default(cuid())
+  userId   String
+  itemId   String
+  position Int    @default(0)
+
+  user User     @relation(fields: [userId], references: [id])
+  item ShopItem @relation(fields: [itemId], references: [id])
+
+  @@unique([userId, itemId])
+}
+
+
+model CatConfig {
+  id     String   @id @default(cuid())
+  userId String   @unique
+  equippedItems String[]
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+
+model Achievement {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  condition   String @default("")
+
+  users UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+}
+
+
+model CoinTransaction {
+  id        String   @id @default(cuid())
+  senderId  String?
+  receiverId String
+  amount    Int
+  reason    String   @default("")
+  createdAt DateTime @default(now())
+
+  sender   User? @relation("CoinSender",   fields: [senderId],   references: [id])
+  receiver User  @relation("CoinReceiver", fields: [receiverId], references: [id])
+}
+
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
