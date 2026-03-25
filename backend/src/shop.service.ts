@@ -26,7 +26,9 @@ export class ShopService {
     });
 
     await this.prisma.userAchievement.upsert({
-      where: { userId_achievementId: { userId, achievementId: 'ach_cat_lover' } },
+      where: {
+        userId_achievementId: { userId, achievementId: 'ach_cat_lover' },
+      },
       update: {},
       create: { userId, achievementId: 'ach_cat_lover' },
     });
@@ -65,9 +67,20 @@ export class ShopService {
     if (!user) throw new NotFoundException('User not found');
     if (!item) throw new NotFoundException('Item not found');
 
-    const fighterRoles = ['FIGHTER', 'COMMANDER', 'COMMANDANT', 'EXTERNAL_COMMISSAR', 'INTERNAL_COMMISSAR', 'METHODIST', 'PRESS_CENTER_HEAD', 'COMSOSTAV'];
+    const fighterRoles = [
+      'FIGHTER',
+      'COMMANDER',
+      'COMMANDANT',
+      'EXTERNAL_COMMISSAR',
+      'INTERNAL_COMMISSAR',
+      'METHODIST',
+      'PRESS_CENTER_HEAD',
+      'COMSOSTAV',
+    ];
     if (item.requiresFighter && !fighterRoles.includes(user.role)) {
-      throw new ForbiddenException('Этот предмет доступен только для подтверждённых участников');
+      throw new ForbiddenException(
+        'Этот предмет доступен только для подтверждённых участников',
+      );
     }
 
     const alreadyOwned = await this.prisma.userShopItem.findUnique({
@@ -100,7 +113,9 @@ export class ShopService {
       const purchaseCount = await tx.userShopItem.count({ where: { userId } });
       if (purchaseCount >= 3) {
         await tx.userAchievement.upsert({
-          where: { userId_achievementId: { userId, achievementId: 'ach_shopper' } },
+          where: {
+            userId_achievementId: { userId, achievementId: 'ach_shopper' },
+          },
           update: {},
           create: { userId, achievementId: 'ach_shopper' },
         });

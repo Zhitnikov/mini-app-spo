@@ -9,17 +9,19 @@ import { randomUUID } from 'crypto';
 export class UploadController {
   @Post()
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file', {
-    storage: diskStorage({
-      destination: join(process.cwd(), '..', 'public', 'uploads'),
-      filename: (req, file, cb) => {
-        const ext = extname(file.originalname);
-        const filename = `${randomUUID()}${ext}`;
-        cb(null, filename);
-      },
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: join(process.cwd(), '..', 'public', 'uploads'),
+        filename: (req, file, cb) => {
+          const ext = extname(file.originalname);
+          const filename = `${randomUUID()}${ext}`;
+          cb(null, filename);
+        },
+      }),
     }),
-  }))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  )
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
     return { url: `/uploads/${file.filename}` };
   }

@@ -28,6 +28,13 @@
 .DS_Store
 *.pem
 
+# IDE / local editor
+.vscode/
+.idea/
+
+# temp/debug scripts
+tmp/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

@@ -18,7 +18,9 @@ export interface SessionPayload {
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  async signToken(payload: Omit<SessionPayload, 'iat' | 'exp'>): Promise<string> {
+  async signToken(
+    payload: Omit<SessionPayload, 'iat' | 'exp'>,
+  ): Promise<string> {
     return await new SignJWT(payload as Record<string, unknown>)
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -35,7 +37,12 @@ export class AuthService {
     }
   }
 
-  async login(vkId: number, firstName: string, lastName: string, avatarUrl?: string) {
+  async login(
+    vkId: number,
+    firstName: string,
+    lastName: string,
+    avatarUrl?: string,
+  ) {
     const isDev = process.env.NODE_ENV === 'development';
     const isDevAdmin = vkId === 1 && isDev;
 

@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Patch, Delete, Body, Query, UseGuards, Param, ForbiddenException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Query,
+  UseGuards,
+  Param,
+  ForbiddenException,
+} from '@nestjs/common';
 import { EventsService } from './events.service';
 import { AuthGuard } from './auth.guard';
 import { User } from './user.decorator';
@@ -15,7 +26,19 @@ export class EventsController {
   @Post()
   @UseGuards(AuthGuard)
   async create(@Body() body: any, @User() user: any) {
-    const { title, date, location, latitude, longitude, imageUrl, description, shortDescription, subtitle, dateLabel, pollQuestion } = body;
+    const {
+      title,
+      date,
+      location,
+      latitude,
+      longitude,
+      imageUrl,
+      description,
+      shortDescription,
+      subtitle,
+      dateLabel,
+      pollQuestion,
+    } = body;
     if (!title || !date || !location) {
       throw new Error('Missing required fields');
     }
@@ -33,7 +56,7 @@ export class EventsController {
       dateLabel: dateLabel || '',
       pollQuestion: pollQuestion || '',
       organizerId: user.userId,
-      status: 'PENDING'
+      status: 'PENDING',
     });
   }
 
@@ -50,7 +73,11 @@ export class EventsController {
 
   @Patch(':id/attend')
   @UseGuards(AuthGuard)
-  async confirmAttendance(@Param('id') id: string, @Body('userId') userId: string, @User() user: any) {
+  async confirmAttendance(
+    @Param('id') id: string,
+    @Body('userId') userId: string,
+    @User() user: any,
+  ) {
     if (!this.isComsostav(user.role)) throw new ForbiddenException('Forbidden');
     return this.eventsService.confirmAttendance(id, userId, user.userId);
   }
@@ -64,13 +91,25 @@ export class EventsController {
 
   @Post(':id/moderate')
   @UseGuards(AuthGuard)
-  async moderate(@Param('id') id: string, @Body('action') action: 'approve' | 'reject', @User() user: any) {
+  async moderate(
+    @Param('id') id: string,
+    @Body('action') action: 'approve' | 'reject',
+    @User() user: any,
+  ) {
     if (!this.isComsostav(user.role)) throw new ForbiddenException('Forbidden');
     return this.eventsService.moderateEvent(id, action, user.userId);
   }
 
   private isComsostav(role: string): boolean {
-    const leaders = ['COMSOSTAV', 'COMMANDER', 'COMMANDANT', 'EXTERNAL_COMMISSAR', 'INTERNAL_COMMISSAR', 'METHODIST', 'PRESS_CENTER_HEAD'];
+    const leaders = [
+      'COMSOSTAV',
+      'COMMANDER',
+      'COMMANDANT',
+      'EXTERNAL_COMMISSAR',
+      'INTERNAL_COMMISSAR',
+      'METHODIST',
+      'PRESS_CENTER_HEAD',
+    ];
     return !!role && leaders.includes(role);
   }
 }

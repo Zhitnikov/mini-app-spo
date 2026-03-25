@@ -7,4 +7,3 @@ import { ShopService } from '../shop.service';
   providers: [ShopService],
 })
 export class ShopModule {}
-

@@ -52,7 +52,8 @@ export class UsersController {
   @Delete(':id')
   @UseGuards(AuthGuard)
   async delete(@Param('id') id: string, @User() currentUser: any) {
-    if (!this.isComsostav(currentUser.role)) throw new ForbiddenException('Forbidden');
+    if (!this.isComsostav(currentUser.role))
+      throw new ForbiddenException('Forbidden');
     await this.usersService.delete(id);
     return { ok: true };
   }
@@ -60,16 +61,26 @@ export class UsersController {
   @Post(':id/coins')
   @UseGuards(AuthGuard)
   async addCoins(@Param('id') id: string, @Body() body: any, @User() currentUser: any) {
-    if (!this.isComsostav(currentUser.role)) throw new ForbiddenException('Forbidden');
+    if (!this.isComsostav(currentUser.role))
+      throw new ForbiddenException('Forbidden');
 
     const { amount, reason } = body;
-    if (!amount || typeof amount !== 'number') throw new Error('Invalid amount');
+    if (!amount || typeof amount !== 'number')
+      throw new Error('Invalid amount');
 
     return this.usersService.addCoins(id, amount, reason, currentUser.userId);
   }
 
   private isComsostav(role: string): boolean {
-    const leaders = ['COMSOSTAV', 'COMMANDER', 'COMMANDANT', 'EXTERNAL_COMMISSAR', 'INTERNAL_COMMISSAR', 'METHODIST', 'PRESS_CENTER_HEAD'];
+    const leaders = [
+      'COMSOSTAV',
+      'COMMANDER',
+      'COMMANDANT',
+      'EXTERNAL_COMMISSAR',
+      'INTERNAL_COMMISSAR',
+      'METHODIST',
+      'PRESS_CENTER_HEAD',
+    ];
     return !!role && leaders.includes(role);
   }
 }

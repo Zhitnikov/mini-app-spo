@@ -7,4 +7,3 @@ import { BadgesService, NotificationsService } from '../misc.services';
   providers: [BadgesService, NotificationsService],
 })
 export class MiscModule {}
-

@@ -11,14 +11,20 @@ export class AchievementsService {
     });
   }
 
-  async createAchievement(data: { name: string, description?: string, icon: string, condition?: string }) {
-    if (!data.name || !data.icon) throw new BadRequestException('Name and icon are required');
+  async createAchievement(data: {
+    name: string;
+    description?: string;
+    icon: string;
+    condition?: string;
+  }) {
+    if (!data.name || !data.icon)
+      throw new BadRequestException('Name and icon are required');
     return this.prisma.achievement.create({
-      data: { 
-        name: data.name, 
-        description: data.description || '', 
-        icon: data.icon, 
-        condition: data.condition || '' 
+      data: {
+        name: data.name,
+        description: data.description || '',
+        icon: data.icon,
+        condition: data.condition || '',
       },
     });
   }
@@ -30,7 +36,9 @@ export class AchievementsService {
       create: { userId, achievementId },
     });
 
-    const achievement = await this.prisma.achievement.findUnique({ where: { id: achievementId } });
+    const achievement = await this.prisma.achievement.findUnique({
+      where: { id: achievementId },
+    });
     if (achievement) {
       await this.prisma.notification.create({
         data: {

@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Delete, Body, Req, Res, UnauthorizedException, NotFoundException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Req,
+  Res,
+  UnauthorizedException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from './users.service';
 import type { Request, Response } from 'express';
@@ -46,7 +56,11 @@ export class AuthController {
     let user = await this.usersService.findById(session.userId);
     if (!user) throw new NotFoundException('User not found');
 
-    if (user.vkId === 1 && process.env.NODE_ENV === 'development' && user.role !== 'COMMANDER') {
+    if (
+      user.vkId === 1 &&
+      process.env.NODE_ENV === 'development' &&
+      user.role !== 'COMMANDER'
+    ) {
       user = (await this.usersService.update(user.id, {
         role: 'COMMANDER',
         coins: { set: Math.max(user.coins, 1000) },
@@ -57,7 +71,7 @@ export class AuthController {
   }
 
   @Delete()
-  async logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('spo_session');
     return { ok: true };
   }

@@ -38,7 +38,15 @@ export class ShopController {
   }
 
   private isComsostav(role: string): boolean {
-    const leaders = ['COMSOSTAV', 'COMMANDER', 'COMMANDANT', 'EXTERNAL_COMMISSAR', 'INTERNAL_COMMISSAR', 'METHODIST', 'PRESS_CENTER_HEAD'];
+    const leaders = [
+      'COMSOSTAV',
+      'COMMANDER',
+      'COMMANDANT',
+      'EXTERNAL_COMMISSAR',
+      'INTERNAL_COMMISSAR',
+      'METHODIST',
+      'PRESS_CENTER_HEAD',
+    ];
     return !!role && leaders.includes(role);
   }
 }

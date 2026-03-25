@@ -39,7 +39,11 @@ export class EventsService {
     });
   }
 
-  async moderateEvent(eventId: string, action: 'approve' | 'reject', adminId: string) {
+  async moderateEvent(
+    eventId: string,
+    action: 'approve' | 'reject',
+    adminId: string,
+  ) {
     const status = action === 'approve' ? 'APPROVED' : 'REJECTED';
     const event = await this.prisma.event.update({
       where: { id: eventId },
@@ -50,10 +54,14 @@ export class EventsService {
     await this.prisma.notification.create({
       data: {
         userId: event.organizerId,
-        title: action === 'approve' ? '🎉 Мероприятие одобрено!' : 'Мероприятие отклонено',
-        message: action === 'approve'
-          ? `Ваше мероприятие "${event.title}" одобрено комсоставом и опубликовано!`
-          : `Ваше мероприятие "${event.title}" было отклонено комсоставом.`,
+        title:
+          action === 'approve'
+            ? 'Мероприятие одобрено!'
+            : 'Мероприятие отклонено',
+        message:
+          action === 'approve'
+            ? `Ваше мероприятие "${event.title}" одобрено комсоставом и опубликовано!`
+            : `Ваше мероприятие "${event.title}" было отклонено комсоставом.`,
       },
     });
 

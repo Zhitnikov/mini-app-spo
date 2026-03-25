@@ -2,7 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma/prisma.service';
 import { UserRole } from '@prisma/client';
 
-export type UserRoleLocal = 'CANDIDATE' | 'FIGHTER' | 'COMMANDER' | 'COMMANDANT' | 'EXTERNAL_COMMISSAR' | 'INTERNAL_COMMISSAR' | 'METHODIST' | 'PRESS_CENTER_HEAD' | 'COMSOSTAV';
+export type UserRoleLocal =
+  | 'CANDIDATE'
+  | 'FIGHTER'
+  | 'COMMANDER'
+  | 'COMMANDANT'
+  | 'EXTERNAL_COMMISSAR'
+  | 'INTERNAL_COMMISSAR'
+  | 'METHODIST'
+  | 'PRESS_CENTER_HEAD'
+  | 'COMSOSTAV';
 export type EventStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 
 @Injectable()
@@ -20,12 +29,27 @@ export class UsersService {
         purchases: { include: { item: true } },
         attendances: {
           where: { confirmedAt: { not: null } },
-          include: { event: { select: { id: true, title: true, dateLabel: true, imageUrl: true } } },
+          include: {
+            event: {
+              select: {
+                id: true,
+                title: true,
+                dateLabel: true,
+                imageUrl: true,
+              },
+            },
+          },
           orderBy: { confirmedAt: 'desc' },
           take: 20,
         },
         organizedEvents: {
-          select: { id: true, title: true, dateLabel: true, imageUrl: true, status: true },
+          select: {
+            id: true,
+            title: true,
+            dateLabel: true,
+            imageUrl: true,
+            status: true,
+          },
           orderBy: { date: 'desc' },
           take: 10,
         },
@@ -45,7 +69,12 @@ export class UsersService {
     });
   }
 
-  async addCoins(userId: string, amount: number, reason: string, senderId?: string) {
+  async addCoins(
+    userId: string,
+    amount: number,
+    reason: string,
+    senderId?: string,
+  ) {
     return this.prisma.$transaction(async (tx) => {
       const user = await tx.user.update({
         where: { id: userId },
@@ -85,7 +114,11 @@ export class UsersService {
     return this.prisma.user.delete({ where: { id } });
   }
 
-  async createNotification(data: { userId: string, title: string, message: string }) {
+  async createNotification(data: {
+    userId: string;
+    title: string;
+    message: string;
+  }) {
     return this.prisma.notification.create({ data });
   }
 
