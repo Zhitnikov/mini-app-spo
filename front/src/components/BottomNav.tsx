@@ -18,7 +18,7 @@ export default function BottomNav() {
     const items = isComsostav ? [...navItems, comsostavItem] : navItems;
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-base-100 border-t border-base-300 safe-area-bottom">
+        <nav className="relative z-50 w-full shrink-0 bg-base-100 border-t border-base-300 pb-[env(safe-area-inset-bottom,0px)]">
             <div className="flex items-stretch h-16">
                 {items.map((item) => {
                     const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));

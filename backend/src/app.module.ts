@@ -8,6 +8,7 @@ import { EventsModule } from './events/events.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { UploadModule } from './upload/upload.module';
 import { MiscModule } from './misc/misc.module';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -21,5 +22,6 @@ import { MiscModule } from './misc/misc.module';
     UploadModule,
     MiscModule,
   ],
+  providers: [AuthGuard],
 })
 export class AppModule {}
