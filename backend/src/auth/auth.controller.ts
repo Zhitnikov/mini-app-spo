@@ -53,7 +53,10 @@ export class AuthController {
   }
 
   @Get()
-  async checkSession(@Req() req: Request) {
+  async checkSession(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const cookies = req.cookies as
       | Record<string, string | undefined>
       | undefined;
@@ -67,20 +70,32 @@ export class AuthController {
     const user = await this.usersService.findById(session.userId);
     if (!user) throw new NotFoundException('User not found');
 
-    if (
-      user.vkId === 1 &&
-      process.env.NODE_ENV === 'development' &&
-      user.role !== UserRole.COMMANDER
-    ) {
-      await this.usersService.update(user.id, {
-        role: UserRole.COMMANDER,
-        coins: { set: Math.max(user.coins, 1000) },
+    const { user: afterEnvAdmin, newToken } =
+      await this.authService.refreshSessionIfEnvAdmin(user);
+    if (newToken) {
+      res.cookie('spo_session', newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7 * 1000,
+        path: '/',
       });
-      const refreshed = await this.usersService.findById(user.id);
-      return refreshed ?? user;
     }
 
-    return user;
+    if (
+      afterEnvAdmin.vkId === 1 &&
+      process.env.NODE_ENV === 'development' &&
+      afterEnvAdmin.role !== UserRole.COMMANDER
+    ) {
+      await this.usersService.update(afterEnvAdmin.id, {
+        role: UserRole.COMMANDER,
+        coins: { set: Math.max(afterEnvAdmin.coins, 1000) },
+      });
+      const refreshed = await this.usersService.findById(afterEnvAdmin.id);
+      return refreshed ?? afterEnvAdmin;
+    }
+
+    return afterEnvAdmin;
   }
 
   @Delete()

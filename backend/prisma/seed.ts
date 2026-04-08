@@ -776,6 +776,9 @@ async function main() {
   console.log(
     `Seed complete: ${formerLottieAsWear.length} premium wear (ex-Lottie), ${catItems.length} cat wear items.`,
   );
+  console.log(
+    'Подсказка: чтобы твой VK-аккаунт всегда был COMMANDER в проде, добавь в .env на сервере ADMIN_VK_IDS=<твой_vk_id> и перезапусти backend.',
+  );
 }
 
 main()
