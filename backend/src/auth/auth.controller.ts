@@ -16,6 +16,18 @@ import { UserRole } from '@prisma/client';
 
 @Controller('api/auth/vk')
 export class AuthController {
+  private buildSessionCookieOptions() {
+    const isProd = process.env.NODE_ENV === 'production';
+    const sameSite: 'none' | 'lax' = isProd ? 'none' : 'lax';
+    return {
+      httpOnly: true as const,
+      secure: isProd,
+      sameSite,
+      maxAge: 60 * 60 * 24 * 7 * 1000,
+      path: '/',
+    };
+  }
+
   constructor(
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
@@ -41,13 +53,7 @@ export class AuthController {
       body.avatarUrl,
     );
 
-    res.cookie('spo_session', result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 7 * 1000,
-      path: '/',
-    });
+    res.cookie('spo_session', result.token, this.buildSessionCookieOptions());
 
     return result;
   }
@@ -73,13 +79,7 @@ export class AuthController {
     const { user: afterEnvAdmin, newToken } =
       await this.authService.refreshSessionIfEnvAdmin(user);
     if (newToken) {
-      res.cookie('spo_session', newToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7 * 1000,
-        path: '/',
-      });
+      res.cookie('spo_session', newToken, this.buildSessionCookieOptions());
     }
 
     if (
@@ -100,7 +100,7 @@ export class AuthController {
 
   @Delete()
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('spo_session');
+    res.clearCookie('spo_session', this.buildSessionCookieOptions());
     return { ok: true };
   }
 }
