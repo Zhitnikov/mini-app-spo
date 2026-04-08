@@ -23,6 +23,7 @@ enum UserRole {
 enum EventStatus {
   PENDING
   APPROVED
+  NEEDS_REVISION
   REJECTED
 }
 
@@ -30,7 +31,23 @@ enum ShopItemType {
   BACKGROUND
   BADGE
   CAT_ITEM
+  CAT_SKIN
   ACHIEVEMENT
+}
+
+/// Слот одежды на канвасе кота (нормализованные координаты 0–1)
+enum CatWearSlot {
+  HAT
+  FACE
+  NECK
+  BODY
+  BACK
+  LEGS
+  ACCESSORY
+  EAR
+  FEET
+  TAIL
+  WRIST
 }
 
 
@@ -43,6 +60,7 @@ model User {
   role        UserRole @default(CANDIDATE)
   coins       Int      @default(0)
   avatarUrl   String?
+  orbitAchievementIds String[] @default([])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -59,6 +77,7 @@ model User {
   sentCoins       CoinTransaction[] @relation("CoinSender")
   receivedCoins   CoinTransaction[] @relation("CoinReceiver")
   pollResponses   PollResponse[]
+  checkerAssignments EventChecker[]
 }
 
 
@@ -76,6 +95,7 @@ model Event {
   imageUrl         String?
   pollQuestion     String      @default("")
   status           EventStatus @default(PENDING)
+  moderationComment String      @default("")
   coinsReward      Int         @default(50)
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
@@ -84,6 +104,7 @@ model Event {
   organizer   User   @relation("EventOrganizer", fields: [organizerId], references: [id])
 
   attendances   EventAttendee[]
+  checkers      EventChecker[]
   polls         Poll[]
   pollResponses PollResponse[]
 }
@@ -95,11 +116,26 @@ model EventAttendee {
   registeredAt DateTime @default(now())
   confirmedAt  DateTime?
   coinsAwarded Boolean   @default(false)
+  contactEmail String?
+  emailConsent Boolean   @default(false)
+  reminderSentAt DateTime?
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
 
   @@unique([userId, eventId])
+}
+
+model EventChecker {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
 }
 
 
@@ -136,6 +172,11 @@ model ShopItem {
   icon            String?
   imageUrl        String?
   requiresFighter Boolean      @default(false)
+  /// Для CAT_ITEM: слот; якорь и размеры в catWearLayout (JSON)
+  catWearSlot     CatWearSlot?
+  catWearLayout   Json?
+  /// Для CAT_SKIN: путь к Lottie JSON (например /lottie/cats/nimbus.json)
+  catSkinLottieUrl String?
   createdAt       DateTime     @default(now())
 
   purchases       UserShopItem[]
@@ -173,6 +214,10 @@ model CatConfig {
   id     String   @id @default(cuid())
   userId String   @unique
   equippedItems String[]
+  /// id скина: cat_skin_default (SVG) или купленный ShopItem CAT_SKIN
+  equippedCatSkinId String @default("cat_skin_default")
+  /// Комплекты одежды по id скина: { "cat_skin_default": ["cat_hat"], ... }
+  skinLoadouts      Json?
 
   user User @relation(fields: [userId], references: [id])
 }

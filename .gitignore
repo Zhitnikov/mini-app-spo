@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/front/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -23,6 +24,7 @@
 
 # production
 /build
+/front/dist
 
 # misc
 .DS_Store
@@ -51,4 +53,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/generated/prisma
+/front/src/generated/prisma

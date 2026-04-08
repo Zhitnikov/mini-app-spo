@@ -3,6 +3,7 @@ import {
   UserRole,
   ShopItemType,
   EventStatus,
+  CatWearSlot,
 } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -124,10 +125,220 @@ async function main() {
     }),
   ]);
 
+  const hatLayout = {
+    anchorX: 0.5,
+    anchorY: 0.12,
+    widthPercent: 0.52,
+    zIndex: 48,
+    rotationDeg: 0,
+  };
+  const faceLayout = {
+    anchorX: 0.5,
+    anchorY: 0.3,
+    widthPercent: 0.44,
+    zIndex: 42,
+    rotationDeg: 0,
+  };
+  const neckLayout = {
+    anchorX: 0.5,
+    anchorY: 0.4,
+    widthPercent: 0.54,
+    zIndex: 34,
+    rotationDeg: 0,
+  };
+  const bodyLayout = {
+    anchorX: 0.5,
+    anchorY: 0.54,
+    widthPercent: 0.62,
+    zIndex: 24,
+    rotationDeg: 0,
+  };
+  const feetLayout = {
+    anchorX: 0.5,
+    anchorY: 0.84,
+    widthPercent: 0.52,
+    zIndex: 20,
+    rotationDeg: 0,
+  };
+  const tailLayout = {
+    anchorX: 0.24,
+    anchorY: 0.72,
+    widthPercent: 0.4,
+    zIndex: 10,
+    rotationDeg: 0,
+  };
+  const backLayout = {
+    anchorX: 0.38,
+    anchorY: 0.5,
+    widthPercent: 0.5,
+    zIndex: 6,
+    rotationDeg: 0,
+  };
+  const nebulaAccessoryLayout = {
+    anchorX: 0.5,
+    anchorY: 0.2,
+    widthPercent: 0.52,
+    zIndex: 40,
+    rotationDeg: 0,
+  };
+
+  const removedCatWearIds = [
+    'cat_vest',
+    'cat_ear_bows',
+    'cat_headband_stars',
+    'cat_monocle_chic',
+    'cat_shorts_chino',
+    'cat_leg_warmers',
+    'cat_backpack_roll',
+  ];
+  await prisma.userShopItem.deleteMany({
+    where: { itemId: { in: removedCatWearIds } },
+  });
+  await prisma.shopItem.deleteMany({
+    where: { id: { in: removedCatWearIds } },
+  });
+
+  /** Бывшие «скины» Lottie → предметы одежды (id те же — покупки не теряются). */
+  const formerLottieAsWear = await prisma.$transaction([
+    prisma.shopItem.upsert({
+      where: { id: 'cat_skin_nimbus' },
+      update: {
+        type: ShopItemType.CAT_ITEM,
+        name: 'Софиты «Студия»',
+        description: 'Клапперборд за спиной',
+        price: 320,
+        icon: '🎬',
+        catSkinLottieUrl: null,
+        catWearSlot: CatWearSlot.BACK,
+        catWearLayout: backLayout,
+      },
+      create: {
+        id: 'cat_skin_nimbus',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Софиты «Студия»',
+        description: 'Клапперборд за спиной',
+        price: 320,
+        icon: '🎬',
+        catWearSlot: CatWearSlot.BACK,
+        catWearLayout: backLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_skin_stellar' },
+      update: {
+        type: ShopItemType.CAT_ITEM,
+        name: 'Корона «Звезда»',
+        description: 'Сияние над ушами',
+        price: 280,
+        icon: '✨',
+        catSkinLottieUrl: null,
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
+      },
+      create: {
+        id: 'cat_skin_stellar',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Корона «Звезда»',
+        description: 'Сияние над ушами',
+        price: 280,
+        icon: '✨',
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_skin_aurora' },
+      update: {
+        type: ShopItemType.CAT_ITEM,
+        name: 'Лента «Аврора»',
+        description: 'Северное сияние на шее',
+        price: 340,
+        icon: '🌌',
+        catSkinLottieUrl: null,
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
+      },
+      create: {
+        id: 'cat_skin_aurora',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Лента «Аврора»',
+        description: 'Северное сияние на шее',
+        price: 340,
+        icon: '🌌',
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_skin_nebula' },
+      update: {
+        type: ShopItemType.CAT_ITEM,
+        name: 'Ореол «Туманность»',
+        description: 'Космическое сияние вокруг головы',
+        price: 300,
+        icon: '🌠',
+        catSkinLottieUrl: null,
+        catWearSlot: CatWearSlot.ACCESSORY,
+        catWearLayout: nebulaAccessoryLayout,
+      },
+      create: {
+        id: 'cat_skin_nebula',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Ореол «Туманность»',
+        description: 'Космическое сияние вокруг головы',
+        price: 300,
+        icon: '🌠',
+        catWearSlot: CatWearSlot.ACCESSORY,
+        catWearLayout: nebulaAccessoryLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_skin_comet' },
+      update: {
+        type: ShopItemType.CAT_ITEM,
+        name: 'Шлейф «Комета»',
+        description: 'Яркий след на хвосте',
+        price: 260,
+        icon: '☄️',
+        catSkinLottieUrl: null,
+        catWearSlot: CatWearSlot.TAIL,
+        catWearLayout: tailLayout,
+      },
+      create: {
+        id: 'cat_skin_comet',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Шлейф «Комета»',
+        description: 'Яркий след на хвосте',
+        price: 260,
+        icon: '☄️',
+        catWearSlot: CatWearSlot.TAIL,
+        catWearLayout: tailLayout,
+      },
+    }),
+  ]);
+
+  await prisma.catConfig.updateMany({
+    where: {
+      equippedCatSkinId: {
+        in: [
+          'cat_skin_nimbus',
+          'cat_skin_stellar',
+          'cat_skin_aurora',
+          'cat_skin_nebula',
+          'cat_skin_comet',
+        ],
+      },
+    },
+    data: { equippedCatSkinId: 'cat_skin_default' },
+  });
+
   const catItems = await prisma.$transaction([
     prisma.shopItem.upsert({
       where: { id: 'cat_hat' },
-      update: {},
+      update: {
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
+      },
       create: {
         id: 'cat_hat',
         type: ShopItemType.CAT_ITEM,
@@ -135,11 +346,16 @@ async function main() {
         price: 100,
         icon: '🎩',
         description: 'Элегантная шляпа для Олега',
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
       },
     }),
     prisma.shopItem.upsert({
       where: { id: 'cat_glasses' },
-      update: {},
+      update: {
+        catWearSlot: CatWearSlot.FACE,
+        catWearLayout: faceLayout,
+      },
       create: {
         id: 'cat_glasses',
         type: ShopItemType.CAT_ITEM,
@@ -147,11 +363,16 @@ async function main() {
         price: 120,
         icon: '👓',
         description: 'Умные очки для умного кота',
+        catWearSlot: CatWearSlot.FACE,
+        catWearLayout: faceLayout,
       },
     }),
     prisma.shopItem.upsert({
       where: { id: 'cat_scarf' },
-      update: {},
+      update: {
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
+      },
       create: {
         id: 'cat_scarf',
         type: ShopItemType.CAT_ITEM,
@@ -159,11 +380,16 @@ async function main() {
         price: 80,
         icon: '🧣',
         description: 'Тёплый шарф',
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
       },
     }),
     prisma.shopItem.upsert({
       where: { id: 'cat_beret' },
-      update: {},
+      update: {
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
+      },
       create: {
         id: 'cat_beret',
         type: ShopItemType.CAT_ITEM,
@@ -172,19 +398,121 @@ async function main() {
         icon: '🪖',
         description: 'Отрядный берет',
         requiresFighter: true,
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
       },
     }),
     prisma.shopItem.upsert({
-      where: { id: 'cat_vest' },
-      update: {},
+      where: { id: 'cat_crown_gold' },
+      update: { catWearSlot: CatWearSlot.HAT, catWearLayout: hatLayout },
       create: {
-        id: 'cat_vest',
+        id: 'cat_crown_gold',
         type: ShopItemType.CAT_ITEM,
-        name: 'Жилет СО',
-        price: 350,
-        icon: '🦺',
-        description: 'Фирменный жилет студотряда',
+        name: 'Золотая корона',
+        price: 280,
+        icon: '👑',
+        description: 'Королевский статус Олега',
+        catWearSlot: CatWearSlot.HAT,
+        catWearLayout: hatLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_bowtie_velvet' },
+      update: { catWearSlot: CatWearSlot.NECK, catWearLayout: neckLayout },
+      create: {
+        id: 'cat_bowtie_velvet',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Бархатная бабочка',
+        price: 110,
+        icon: '🎀',
+        description: 'Вечерний выход',
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_pearl_necklace' },
+      update: { catWearSlot: CatWearSlot.NECK, catWearLayout: neckLayout },
+      create: {
+        id: 'cat_pearl_necklace',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Жемчужное колье',
+        price: 260,
+        icon: '📿',
+        description: 'Элегантность и блеск',
+        catWearSlot: CatWearSlot.NECK,
+        catWearLayout: neckLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_hoodie_zip' },
+      update: { catWearSlot: CatWearSlot.BODY, catWearLayout: bodyLayout },
+      create: {
+        id: 'cat_hoodie_zip',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Худи на молнии',
+        price: 190,
+        icon: '🧥',
+        description: 'Уютный стритстайл',
+        catWearSlot: CatWearSlot.BODY,
+        catWearLayout: bodyLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_denim_jacket' },
+      update: { catWearSlot: CatWearSlot.BODY, catWearLayout: bodyLayout },
+      create: {
+        id: 'cat_denim_jacket',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Джинсовая куртка',
+        price: 210,
+        icon: '👔',
+        description: 'Классика casual',
+        catWearSlot: CatWearSlot.BODY,
+        catWearLayout: bodyLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_sneakers_hi' },
+      update: { catWearSlot: CatWearSlot.FEET, catWearLayout: feetLayout },
+      create: {
+        id: 'cat_sneakers_hi',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Хайтопы',
+        price: 170,
+        icon: '👟',
+        description: 'Удобные кроссовки',
+        catWearSlot: CatWearSlot.FEET,
+        catWearLayout: feetLayout,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_boots_combat' },
+      update: { catWearSlot: CatWearSlot.FEET, catWearLayout: feetLayout },
+      create: {
+        id: 'cat_boots_combat',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Берцы',
+        price: 240,
+        icon: '🥾',
+        description: 'Серьёзная походка',
+        catWearSlot: CatWearSlot.FEET,
+        catWearLayout: feetLayout,
         requiresFighter: true,
+      },
+    }),
+    prisma.shopItem.upsert({
+      where: { id: 'cat_tail_ribbon' },
+      update: { catWearSlot: CatWearSlot.TAIL, catWearLayout: tailLayout },
+      create: {
+        id: 'cat_tail_ribbon',
+        type: ShopItemType.CAT_ITEM,
+        name: 'Бант на хвосте',
+        price: 85,
+        icon: '🎀',
+        description: 'Акцент на хвостике',
+        catWearSlot: CatWearSlot.TAIL,
+        catWearLayout: tailLayout,
       },
     }),
   ]);
@@ -390,7 +718,8 @@ async function main() {
     update: {
       latitude: 57.8194,
       longitude: 28.3317,
-      status: EventStatus.PENDING,
+      status: EventStatus.NEEDS_REVISION,
+      moderationComment: 'Уточните программу вечера и ожидаемое количество участников.',
       dateLabel: '15 февраля, 19:00',
       location: 'Псков, наб. реки Великой',
     },
@@ -409,7 +738,8 @@ async function main() {
       imageUrl:
         'https://placehold.co/800x600/cbd5e1/334155?text=Creative+Night',
       pollQuestion: 'Хочешь выступить?',
-      status: EventStatus.PENDING,
+      status: EventStatus.NEEDS_REVISION,
+      moderationComment: 'Уточните программу вечера и ожидаемое количество участников.',
       coinsReward: 40,
       organizerId: demoCommissar.id,
     },
@@ -443,7 +773,9 @@ async function main() {
     },
   });
 
-  console.log('Seed complete!');
+  console.log(
+    `Seed complete: ${formerLottieAsWear.length} premium wear (ex-Lottie), ${catItems.length} cat wear items.`,
+  );
 }
 
 main()

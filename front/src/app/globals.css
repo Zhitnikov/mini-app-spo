@@ -1,0 +1,182 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+
+  --color-primary: #334155;
+  --color-primary-content: #f8fafc;
+  --color-secondary: #64748b;
+  --color-accent: #4f46e5;
+}
+
+@layer base {
+
+  html,
+  body {
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+    background-color: #f1f5f9;
+    overscroll-behavior: none;
+    font-family: var(--font-sans);
+    color: #334155;
+  }
+
+  .btn {
+    border-radius: 1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .btn:hover,
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-accent,
+  .btn-info,
+  .btn-success,
+  .btn-warning,
+  .btn-error {
+    background-color: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #475569 !important;
+  }
+
+  .btn-sm {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+}
+
+/* Формы в админке: единый вид полей (input/textarea/select) */
+@layer components {
+  .mgmt-label {
+    display: block;
+    font-size: 0.625rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 0.35rem;
+  }
+
+  .mgmt-field {
+    display: block;
+  }
+
+  .mgmt-input,
+  select.mgmt-input,
+  textarea.mgmt-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    background-color: #ffffff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: #1e293b;
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  textarea.mgmt-input {
+    min-height: 4.5rem;
+    resize: vertical;
+  }
+
+  select.mgmt-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    padding-right: 2.25rem;
+  }
+
+  .mgmt-input::placeholder,
+  textarea.mgmt-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .mgmt-input:hover,
+  select.mgmt-input:hover,
+  textarea.mgmt-input:hover {
+    border-color: #cbd5e1;
+  }
+
+  .mgmt-input:focus,
+  select.mgmt-input:focus,
+  textarea.mgmt-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow:
+      0 1px 2px 0 rgba(15, 23, 42, 0.04),
+      0 0 0 3px rgba(99, 102, 241, 0.18);
+  }
+
+  .mgmt-input:disabled,
+  select.mgmt-input:disabled,
+  textarea.mgmt-input:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  .mgmt-file {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.75rem;
+    color: #475569;
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  }
+
+  .mgmt-file::file-selector-button {
+    margin-right: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+  }
+
+  .mgmt-file:hover::file-selector-button {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+  }
+}
+
+.coin-pop {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.coin-pop:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.bg-glass {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+}

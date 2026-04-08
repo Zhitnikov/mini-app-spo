@@ -1,31 +1,42 @@
 # Инструкции по управлению проектом
 
+Фронтенд и бэкенд — **отдельные npm-проекты**: зависимости ставятся в `front/` и `backend/` (`npm install` в каждой папке).
+
 ## 🚀 Быстрый старт
 Для запуска приложения выполните последовательно:
 
-1. **Запуск инфраструктуры**:
+1. **Запуск инфраструктуры** (из корня репозитория):
    ```bash
    docker-compose up -d
    ```
 
-2. **Настройка базы данных**:
+2. **Настройка базы данных** (из папки `backend`):
    ```bash
+   cd backend
    npm install
    npx prisma migrate dev --name init
    npx prisma db seed
    ```
 
-3. **Запуск сервера разработки**:
+3. **Запуск API** (терминал в `backend`):
    ```bash
+   npm run start:dev
+   ```
+   API по умолчанию: **http://localhost:4000**
+
+4. **Запуск фронтенда** (отдельный терминал, папка `front`):
+   ```bash
+   cd front
+   npm install
    npm run dev
    ```
-   Приложение теперь доступно на **[http://localhost:3001](http://localhost:3001)** (порт изменен с 3000).
+   Vite: **http://localhost:3005** (прокси `/api` и `/uploads` на бэкенд).
 
 ---
 
 ## 🛠 Режим разработки (без VK)
 Если вы запускаете проект в обычном браузере (не внутри VK):
-- При первом запуске на `localhost:3001` вы будете **автоматически авторизованы как Администратор** (Админ СО).
+- При первом запуске на `localhost:3005` вы будете **автоматически авторизованы как Администратор** (Админ СО).
 - Вам будет начислено 1000 монет для тестирования магазина.
 - Все защищенные разделы (Профиль, Магазин, Админка) будут доступны.
 
@@ -47,7 +58,7 @@ docker-compose down -v --rmi all
 
 ---
 
-## � Полезные ссылки
-- **REST API Docs (Swagger)**: [http://localhost:3001/api/docs](http://localhost:3001/api/docs)
-- **GraphQL Playground**: [http://localhost:3001/api/graphql](http://localhost:3001/api/graphql)
-- **Фронтенд**: [http://localhost:3001](http://localhost:3001)
+## Полезные ссылки
+- **REST API Docs (Swagger)**: [http://localhost:4000/api/docs](http://localhost:4000/api/docs)
+- **GraphQL Playground**: [http://localhost:4000/api/graphql](http://localhost:4000/api/graphql)
+- **Фронтенд (Vite)**: [http://localhost:3005](http://localhost:3005)
