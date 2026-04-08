@@ -445,9 +445,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
           where: { userId_eventId: { userId: row.userId, eventId: row.eventId } },
           data: { reminderSentAt: new Date() },
         });
-      } catch {
-        // Не роняем процесс из-за одного письма
-      }
+      } catch {}
     }
   }
 }

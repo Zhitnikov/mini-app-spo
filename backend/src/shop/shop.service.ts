@@ -26,7 +26,6 @@ export interface CreateShopItemInput {
   requiresFighter?: boolean;
   catWearSlot?: CatWearSlot | null;
   catWearLayout?: CatWearLayoutInput | null;
-  /** Только для CAT_SKIN */
   catSkinLottieUrl?: string | null;
 }
 

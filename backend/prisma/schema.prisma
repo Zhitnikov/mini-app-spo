@@ -35,7 +35,6 @@ enum ShopItemType {
   ACHIEVEMENT
 }
 
-/// Слот одежды на канвасе кота (нормализованные координаты 0–1)
 enum CatWearSlot {
   HAT
   FACE
@@ -172,10 +171,8 @@ model ShopItem {
   icon            String?
   imageUrl        String?
   requiresFighter Boolean      @default(false)
-  /// Для CAT_ITEM: слот; якорь и размеры в catWearLayout (JSON)
   catWearSlot     CatWearSlot?
   catWearLayout   Json?
-  /// Для CAT_SKIN: путь к Lottie JSON (например /lottie/cats/nimbus.json)
   catSkinLottieUrl String?
   createdAt       DateTime     @default(now())
 
@@ -214,9 +211,7 @@ model CatConfig {
   id     String   @id @default(cuid())
   userId String   @unique
   equippedItems String[]
-  /// id скина: cat_skin_default (SVG) или купленный ShopItem CAT_SKIN
   equippedCatSkinId String @default("cat_skin_default")
-  /// Комплекты одежды по id скина: { "cat_skin_default": ["cat_hat"], ... }
   skinLoadouts      Json?
 
   user User @relation(fields: [userId], references: [id])

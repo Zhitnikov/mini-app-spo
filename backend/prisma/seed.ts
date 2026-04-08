@@ -198,7 +198,6 @@ async function main() {
     where: { id: { in: removedCatWearIds } },
   });
 
-  /** Бывшие «скины» Lottie → предметы одежды (id те же — покупки не теряются). */
   const formerLottieAsWear = await prisma.$transaction([
     prisma.shopItem.upsert({
       where: { id: 'cat_skin_nimbus' },

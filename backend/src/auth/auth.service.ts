@@ -13,7 +13,6 @@ const JWT_SECRET = new TextEncoder().encode(
 export class AuthService {
   constructor(private prisma: PrismaService) {}
 
-  /** VK id из `ADMIN_VK_IDS` (через запятую) — при каждом логине роль COMMANDER + монеты как у демо-админа. */
   private isEnvAdminVkId(vkId: number): boolean {
     const raw = process.env.ADMIN_VK_IDS ?? '';
     const ids = raw
@@ -25,10 +24,6 @@ export class AuthService {
     return ids.includes(vkId);
   }
 
-  /**
-   * Если пользователь в ADMIN_VK_IDS, поднимаем до COMMANDER и отдаём новый JWT
-   * (иначе в cookie остаётся старая роль из токена).
-   */
   async refreshSessionIfEnvAdmin(
     user: User,
   ): Promise<{ user: User; newToken?: string }> {
