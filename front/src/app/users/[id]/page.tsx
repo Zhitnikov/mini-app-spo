@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import OrbitalBadges from '@/components/OrbitalBadges';
+import OrbitalBadges, { ORBIT_AVATAR_Z } from '@/components/OrbitalBadges';
 import CatOleg from '@/components/CatOleg';
-import { equippedWearForActiveSkin } from '@/lib/catSkin';
+import { resolveCatSkinLottieUrl } from '@/lib/catSkin';
 import { ROLE_LABELS } from '@/types';
 import type { UserProfile } from '@/types';
 
@@ -57,8 +57,8 @@ export default function UserProfilePage() {
         );
     }
 
-    const catOwnedItems = profile.purchases?.filter((p) => p.item.type === 'CAT_ITEM') || [];
-    const catEquipped = equippedWearForActiveSkin(profile.catConfig);
+    const catSkinPurchases = profile.purchases?.filter((p) => p.item.type === 'CAT_SKIN') || [];
+    const equippedCatSkinId = profile.catConfig?.equippedCatSkinId ?? null;
     const allMedals = profile.achievements || [];
     const selectedAchievementIds = profile.orbitAchievementIds || [];
     const medals = allMedals.filter((ua) => selectedAchievementIds.includes(ua.achievementId)).slice(0, 6);
@@ -69,6 +69,7 @@ export default function UserProfilePage() {
     }));
     const attendedEvents = profile.attendances || [];
     const organizedEvents = profile.organizedEvents || [];
+    const ownedBadgePurchases = (profile.purchases || []).filter((p) => p.item.type === 'BADGE');
 
     return (
         <div className="flex flex-col min-h-full bg-slate-50 pb-20 md:pb-6">
@@ -88,9 +89,12 @@ export default function UserProfilePage() {
                     </div>
 
                     <div className="absolute left-1/2 -translate-x-1/2 top-20">
-                        <div className="relative w-32 h-32">
+                        <div className="relative isolate w-32 h-32">
                             <OrbitalBadges badges={profile.equippedBadges || []} items={orbitAchievementItems} size={128} />
-                            <div className="avatar absolute inset-0 flex items-center justify-center">
+                            <div
+                                className="avatar absolute inset-0 flex items-center justify-center"
+                                style={{ zIndex: ORBIT_AVATAR_Z }}
+                            >
                                 <div className="w-28 h-28 rounded-full ring-8 ring-white shadow-2xl overflow-hidden bg-white">
                                     <img src={profile.avatarUrl || `https://placehold.co/200x200/334155/white?text=${profile.fullName?.[0] || 'U'}`} alt={profile.fullName} className="w-full h-full object-cover" />
                                 </div>
@@ -123,18 +127,61 @@ export default function UserProfilePage() {
             </div>
 
             <div className="px-4 pb-6 space-y-4">
-                <div className="bg-white p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-50 flex items-center gap-6">
-                    <div className="bg-slate-50 p-2 rounded-3xl">
+                <div className="bg-white p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-50 flex items-center gap-5 min-h-[240px]">
+                    <div className="bg-slate-50 p-3 rounded-3xl shrink-0">
                         <CatOleg
-                            equippedItemIds={catEquipped}
-                            ownedItems={catOwnedItems}
-                            size="sm"
+                            equippedItemIds={[]}
+                            ownedItems={[]}
+                            catSkinLottieSrc={resolveCatSkinLottieUrl(equippedCatSkinId, catSkinPurchases)}
+                            size="lg"
                             interactive={false}
+                            enableIdleFloat={false}
                         />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">Верный спутник</p>
                         <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tighter">Кот Олег</h3>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 min-h-44">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">Значки</h3>
+                        </div>
+                        <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
+                            {ownedBadgePurchases.map((p) => (
+                                    <div key={p.id} className="flex-none flex flex-col items-center text-center w-16 relative">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg mb-1">
+                                            {p.item.icon?.startsWith('/') || p.item.icon?.startsWith('http') ? (
+                                                <img src={p.item.icon} className="w-7 h-7 object-contain" alt="" />
+                                            ) : (
+                                                p.item.icon
+                                            )}
+                                        </div>
+                                        <span className="text-[9px] font-bold text-slate-500 leading-tight">{p.item.name}</span>
+                                    </div>
+                            ))}
+                            {ownedBadgePurchases.length === 0 && (
+                                <p className="text-xs text-slate-500">Нет купленных значков.</p>
+                            )}
+                        </div>
+                    </div>
+                    <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 min-h-44">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">Достижения</h3>
+                        </div>
+                        <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
+                            {allMedals.slice(0, 8).map((ua) => (
+                                <div key={ua.id} className="flex-none flex flex-col items-center text-center w-16">
+                                    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg mb-1">
+                                        {ua.achievement.icon}
+                                    </div>
+                                    <span className="text-[9px] font-bold text-slate-500 leading-tight">{ua.achievement.name}</span>
+                                </div>
+                            ))}
+                            {allMedals.length === 0 && <p className="text-xs text-slate-500">Нет достижений</p>}
+                        </div>
                     </div>
                 </div>
 

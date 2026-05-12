@@ -98,8 +98,17 @@ export default function EventDetailsPage() {
         <div className="flex flex-col">
             <header className="sticky top-0 z-30 bg-base-100/95 backdrop-blur border-b border-base-300 px-4 py-3 flex items-center gap-2">
                 <button className="btn btn-ghost btn-square btn-sm" onClick={() => navigate(-1)}>←</button>
-                <h1 className="flex-1 text-sm font-bold truncate">{event.title}</h1>
-                <span className="badge badge-primary gap-1 text-xs">+{event.coinsReward} 🪙</span>
+                <h1 className="flex-1 text-sm font-bold truncate min-w-0">{event.title}</h1>
+                <span className="badge badge-primary gap-1 text-xs shrink-0">+{event.coinsReward} 🪙</span>
+                {canScan && (
+                    <button
+                        type="button"
+                        className="btn btn-outline btn-sm shrink-0 whitespace-nowrap"
+                        onClick={() => navigate(`/events/${id}/scan`)}
+                    >
+                        Сканирование
+                    </button>
+                )}
             </header>
 
             {event.imageUrl && (
@@ -190,11 +199,6 @@ export default function EventDetailsPage() {
                     <div className="alert">
                         <span>Регистрация откроется после публикации мероприятия.</span>
                     </div>
-                )}
-                {canScan && (
-                    <button className="btn btn-outline w-full" onClick={() => navigate(`/events/${id}/scan`)}>
-                        Открыть страницу сканирования
-                    </button>
                 )}
             </div>
         </div>

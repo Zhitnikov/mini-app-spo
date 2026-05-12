@@ -94,7 +94,17 @@ export default function ManagementEventsPage() {
 
     const deleteEvent = async (eventId: string) => {
         if (!confirm('Удалить мероприятие?')) return;
-        await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
+        const res = await fetch(`/api/events/${eventId}`, { method: 'DELETE' });
+        if (!res.ok && res.status === 404) {
+            await fetch(`/api/events/${eventId}/moderate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'reject',
+                    comment: 'Удалено из управления',
+                }),
+            });
+        }
         setApproved((prev) => prev.filter((e) => e.id !== eventId));
     };
 

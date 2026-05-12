@@ -1,14 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faUsers, faStore, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
 
 const navItems = [
-    { href: '/', label: 'Мероприятия', icon: '📅' },
-    { href: '/users', label: 'Участники', icon: '👥' },
-    { href: '/shop', label: 'Магазин', icon: '🛍️' },
-    { href: '/profile', label: 'Профиль', icon: '👤' },
+    { href: '/', label: 'Мероприятия', icon: faCalendarDays },
+    { href: '/users', label: 'Участники', icon: faUsers },
+    { href: '/shop', label: 'Магазин', icon: faStore },
+    { href: '/profile', label: 'Профиль', icon: faUser },
 ];
 
-const comsostavItem = { href: '/management', label: 'Управление', icon: '⚙️' };
+const comsostavItem = { href: '/management', label: 'Управление', icon: faGear };
 
 export default function BottomNav() {
     const location = useLocation();
@@ -32,7 +34,7 @@ export default function BottomNav() {
                                     : 'text-base-content/50 hover:text-base-content'
                                 }`}
                         >
-                            <span className="text-xl leading-none">{item.icon}</span>
+                            <span className="text-xl leading-none"><FontAwesomeIcon icon={item.icon} /></span>
                             <span className="text-[10px] font-medium leading-tight">{item.label}</span>
                         </Link>
                     );

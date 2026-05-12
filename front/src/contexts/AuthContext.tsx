@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import bridge from '@vkontakte/vk-bridge';
 import type { UserProfile } from '@/types';
+import { isManagementLeaderRole } from '@/lib/leaderRoles';
 
 interface AuthContextValue {
     user: UserProfile | null;
@@ -120,14 +121,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         init();
     }, [initDevAuth, fetchSession]);
 
-    const COMSOSTAV_ROLES = ['COMSOSTAV', 'COMMANDER', 'COMMANDANT', 'EXTERNAL_COMMISSAR', 'INTERNAL_COMMISSAR', 'METHODIST', 'PRESS_CENTER_HEAD'];
-
     return (
         <AuthContext.Provider
             value={{
                 user,
                 loading,
-                isComsostav: user ? COMSOSTAV_ROLES.includes(user.role) : false,
+                isComsostav: user ? isManagementLeaderRole(user.role) : false,
                 refetch: async () => {
                     setLoading(true);
                     await fetchSession();

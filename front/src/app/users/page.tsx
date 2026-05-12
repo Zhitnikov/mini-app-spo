@@ -56,7 +56,7 @@ export default function UsersPage() {
                             className="card bg-base-100 shadow-sm hover:shadow-md transition-all block"
                         >
                             <div className="card-body p-3 flex-row items-center gap-3">
-                                {/* Rank */}
+                                
                                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-none
                   ${idx === 0 ? 'bg-warning text-warning-content' :
                                         idx === 1 ? 'bg-base-300 text-base-content' :

@@ -9,10 +9,7 @@ interface CatBodyAnimatedProps {
     tailWear?: ReactNode;
 }
 
-/**
- * Упрощённый «чиби»-кот: мягкие формы, тёплая палитра, без шума и лишней детализации.
- * Хвост — CAT_TAIL_PIVOT; лента на хвосте (builtin) рассчитана на те же user-space координаты.
- */
+
 export default function CatBodyAnimated({
     mood,
     className = '',
@@ -90,7 +87,7 @@ export default function CatBodyAnimated({
                 className={g('shadow')}
             />
 
-            {/* Хвост: короче, слева, не уходит над голову — лента ~ (26, 132) */}
+            
             <g className={g('tail')}>
                 <path
                     d="M 52 220
@@ -117,7 +114,7 @@ export default function CatBodyAnimated({
             </g>
 
             <g className={g('breathe')}>
-                {/* Туловище */}
+                
                 <ellipse
                     cx="100"
                     cy="208"
@@ -136,11 +133,11 @@ export default function CatBodyAnimated({
                     opacity={0.85}
                 />
 
-                {/* Задние лапки (контур) */}
+                
                 <ellipse cx="62" cy="228" rx="14" ry="10" fill={`url(#${g('coat')})`} stroke="#c2410c" strokeWidth="1" />
                 <ellipse cx="138" cy="228" rx="14" ry="10" fill={`url(#${g('coat')})`} stroke="#c2410c" strokeWidth="1" />
 
-                {/* Голова — почти круг */}
+                
                 <circle
                     cx="100"
                     cy="118"
@@ -177,7 +174,7 @@ export default function CatBodyAnimated({
                     />
                 </g>
 
-                {/* Мордочка */}
+                
                 <ellipse cx="100" cy="128" rx="36" ry="28" fill="#fffbeb" stroke="#fde68a" strokeWidth="0.8" />
                 <ellipse cx="100" cy="124" rx="5" ry="4" fill="#fda4af" />
                 <path
@@ -196,7 +193,7 @@ export default function CatBodyAnimated({
                     <path d="M 148 128 L 182 128" />
                 </g>
 
-                {/* Передние лапы — мягкие овалы */}
+                
                 <ellipse cx="86" cy="232" rx="16" ry="20" fill={`url(#${g('coat')})`} stroke="#c2410c" strokeWidth="1" />
                 <ellipse cx="114" cy="232" rx="16" ry="20" fill={`url(#${g('coat')})`} stroke="#c2410c" strokeWidth="1" />
                 <ellipse cx="86" cy="242" rx="10" ry="7" fill="#ffe4e6" opacity={0.9} />

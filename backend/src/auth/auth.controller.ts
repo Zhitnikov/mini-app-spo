@@ -9,11 +9,13 @@ import {
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
 import type { Request, Response } from 'express';
 import { UserRole } from '@prisma/client';
 
+@ApiTags('auth')
 @Controller('api/auth/vk')
 export class AuthController {
   private buildSessionCookieOptions() {
@@ -34,6 +36,23 @@ export class AuthController {
   ) {}
 
   @Post()
+  @ApiOperation({
+    summary: 'Вход по VK',
+    description:
+      'Создаёт/обновляет пользователя и выставляет httpOnly cookie `spo_session`.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['vkId', 'firstName', 'lastName'],
+      properties: {
+        vkId: { type: 'number', example: 123456 },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        avatarUrl: { type: 'string', nullable: true },
+      },
+    },
+  })
   async login(
     @Body()
     body: {
@@ -59,6 +78,10 @@ export class AuthController {
   }
 
   @Get()
+  @ApiOperation({
+    summary: 'Текущая сессия',
+    description: 'Читает cookie `spo_session` и возвращает пользователя.',
+  })
   async checkSession(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -99,6 +122,7 @@ export class AuthController {
   }
 
   @Delete()
+  @ApiOperation({ summary: 'Выход', description: 'Сбрасывает cookie сессии.' })
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('spo_session', this.buildSessionCookieOptions());
     return { ok: true };

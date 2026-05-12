@@ -8,7 +8,7 @@ export default function MapPage() {
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(true);
     const [mapView, setMapView] = useState<{ center: [number, number]; zoom: number }>({
-        center: [59.9311, 30.3609], // СПБ
+        center: [59.9311, 30.3609],
         zoom: 11
     });
 

@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo, type CSSProperties } from 'react';
 import { motion } from 'motion/react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import type { UserShopItem, ShopItem } from '@/types';
 import CatBodyAnimated, { type CatMood } from '@/components/cat/CatBodyAnimated';
-import CatLottieFloor from '@/components/cat/CatLottieFloor';
 import { BuiltinTailRibbonG } from '@/components/cat/builtinTailWear';
 import { getBuiltinWearComponent } from '@/components/cat/builtinCatWear';
 import { catTailPivotPercent } from '@/components/cat/catViewBox';
@@ -16,10 +16,10 @@ import {
 interface CatOlegProps {
     equippedItemIds: string[];
     ownedItems: UserShopItem[];
-    /** Устарело: всегда игнорируется, тело только SVG-кот с гардеробом */
     catSkinLottieSrc?: string | null;
     size?: 'sm' | 'md' | 'lg';
     interactive?: boolean;
+    enableIdleFloat?: boolean;
     onJump?: () => void;
 }
 
@@ -58,7 +58,6 @@ function WearLayer({
     const Builtin = getBuiltinWearComponent(item.id);
     const showBuiltin = Boolean(Builtin && usesBuiltinVectorWear(item));
 
-    /* PNG/URL на хвосте: вращаем весь inset-0 вокруг базы хвоста */
     if (slot === 'TAIL' && url && !showBuiltin) {
         return (
             <div
@@ -201,9 +200,9 @@ export default function CatOleg({
     catSkinLottieSrc: _catSkinLottieSrc = null,
     size = 'md',
     interactive = true,
+    enableIdleFloat = true,
     onJump,
 }: CatOlegProps) {
-    void _catSkinLottieSrc;
     const [mood, setMood] = useState<CatMood>('idle');
     const [isAnimating, setIsAnimating] = useState(false);
     const [sparkle, setSparkle] = useState(false);
@@ -285,39 +284,32 @@ export default function CatOleg({
                 onClick={handleClick}
                 style={{ animation: containerAnim }}
             >
-                <CatLottieFloor />
                 <motion.div
                     className="absolute inset-[5%] z-0 pointer-events-none"
                     animate={
-                        mood === 'idle' && !isAnimating
+                        enableIdleFloat && mood === 'idle' && !isAnimating
                             ? { y: [0, -6, 0] }
                             : { y: 0 }
                     }
                     transition={
-                        mood === 'idle' && !isAnimating
+                        enableIdleFloat && mood === 'idle' && !isAnimating
                             ? { repeat: Infinity, duration: 3.2, ease: 'easeInOut' }
                             : { duration: 0.2 }
                     }
                 >
-                    <CatBodyAnimated
-                        mood={mood}
-                        tailWear={
-                            tailRibbonInside ? (
-                                <BuiltinTailRibbonG />
-                            ) : undefined
-                        }
-                    />
+                    {_catSkinLottieSrc ? (
+                        <DotLottieReact src={_catSkinLottieSrc} loop autoplay style={{ width: '100%', height: '100%' }} />
+                    ) : (
+                        <CatBodyAnimated
+                            mood={mood}
+                            tailWear={
+                                tailRibbonInside ? (
+                                    <BuiltinTailRibbonG />
+                                ) : undefined
+                            }
+                        />
+                    )}
                 </motion.div>
-
-                {layers.map((item) => (
-                    <WearLayer
-                        key={item.userShopId}
-                        item={item}
-                        size={size}
-                        mood={mood}
-                        tailPivot={tailPivot}
-                    />
-                ))}
 
                 <SparkleBurst active={sparkle} />
 

@@ -1,7 +1,7 @@
 import Lottie from 'lottie-react';
 import floorGlow from '@/assets/lottie/floor-glow.json';
 
-/** Пульсирующее бирюзовое свечение под лапами (Lottie). */
+
 export default function CatLottieFloor({ className = '' }: { className?: string }) {
     return (
         <div

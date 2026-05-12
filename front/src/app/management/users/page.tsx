@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
-import { ChevronDown } from 'lucide-react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronDown, faUsers, faPlus, faMagnifyingGlass, faTrash, faCoins, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROLE_LABELS, type UserRole } from '@/types';
 import type { Achievement, ShopItem, UserProfile } from '@/types';
@@ -253,19 +254,19 @@ export default function ManagementUsersPage() {
             <header className="sticky top-0 z-30 bg-base-100/95 backdrop-blur border-b border-base-300 px-4 py-3">
                 <div className="flex items-center gap-2 mb-2">
                     <button type="button" className="btn btn-ghost btn-square btn-sm" onClick={() => navigate(-1)}>
-                        ←
+                        <FontAwesomeIcon icon={faArrowLeft} />
                     </button>
-                    <h1 className="text-base font-bold flex-1">👥 Участники</h1>
+                    <h1 className="text-base font-bold flex-1"><FontAwesomeIcon icon={faUsers} /> Участники</h1>
                     <button
                         type="button"
                         className="btn btn-sm btn-primary"
                         onClick={() => setCreateOpen(true)}
                     >
-                        + Новый
+                        <FontAwesomeIcon icon={faPlus} /> Новый
                     </button>
                 </div>
                 <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
                     <input
                         type="text"
                         placeholder="Поиск..."
@@ -306,7 +307,7 @@ export default function ManagementUsersPage() {
                                     </span>
                                 </div>
                                 <div className="text-right flex-none text-sm">
-                                    <p className="font-bold text-warning">{u.coins} 🪙</p>
+                                    <p className="font-bold text-warning">{u.coins} <FontAwesomeIcon icon={faCoins} /></p>
                                     <p className="text-[10px] text-base-content/50">VK {u.vkId}</p>
                                 </div>
                                 <button
@@ -315,7 +316,8 @@ export default function ManagementUsersPage() {
                                     aria-expanded={expandedId === u.id}
                                     onClick={() => setExpandedId((id) => (id === u.id ? null : u.id))}
                                 >
-                                    <ChevronDown
+                                    <FontAwesomeIcon
+                                        icon={faChevronDown}
                                         className={clsx(
                                             'w-5 h-5 transition-transform duration-200',
                                             expandedId === u.id && 'rotate-180',
@@ -489,7 +491,7 @@ export default function ManagementUsersPage() {
                                                         disabled={!coinAmount || processing}
                                                         onClick={giveCoins}
                                                     >
-                                                        +🪙
+                                                        +<FontAwesomeIcon icon={faCoins} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -508,7 +510,7 @@ export default function ManagementUsersPage() {
                                                     className="btn btn-sm btn-error btn-outline"
                                                     onClick={() => deleteUser(u)}
                                                 >
-                                                    🗑️ Удалить
+                                                    <FontAwesomeIcon icon={faTrash} /> Удалить
                                                 </button>
                                             </div>
                                         </>

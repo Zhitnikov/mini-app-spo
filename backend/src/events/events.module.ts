@@ -7,5 +7,6 @@ import { AchievementsModule } from '../achievements/achievements.module';
   imports: [AchievementsModule],
   controllers: [EventsController],
   providers: [EventsService],
+  exports: [EventsService],
 })
 export class EventsModule {}

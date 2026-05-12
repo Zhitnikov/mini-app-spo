@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserRole, type Prisma } from '@prisma/client';
 import { AchievementsService } from '../achievements/achievements.service';
+import { ShopService } from '../shop/shop.service';
 
 export type UserRoleLocal =
   | 'CANDIDATE'
@@ -20,6 +21,7 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private achievementsService: AchievementsService,
+    private shopService: ShopService,
   ) {}
 
   async findById(id: string) {
@@ -83,11 +85,13 @@ export class UsersService {
     if (dup) throw new ConflictException('Пользователь с таким VK ID уже есть');
 
     const coins =
-      typeof data.coins === 'number' && Number.isFinite(data.coins) && data.coins >= 0
+      typeof data.coins === 'number' &&
+      Number.isFinite(data.coins) &&
+      data.coins >= 0
         ? Math.floor(data.coins)
         : 0;
 
-    return this.prisma.user.create({
+    const created = await this.prisma.user.create({
       data: {
         vkId: data.vkId,
         fullName: data.fullName.trim(),
@@ -104,6 +108,8 @@ export class UsersService {
         _count: { select: { attendances: true } },
       },
     });
+    await this.shopService.ensureStarterCatSkinIfNoSkinsOwned(created.id);
+    return created;
   }
 
   async updateRole(userId: string, role: string) {

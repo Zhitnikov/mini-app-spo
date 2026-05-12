@@ -123,7 +123,7 @@ export const BuiltinBootsCombat: FC<P> = ({ className = '' }) => (
     </svg>
 );
 
-/** Хвостовой бант — только через BuiltinTailRibbonG внутри CatBodyAnimated */
+
 export const CATALOG_WEAR_MAP: Record<string, FC<P>> = {
     cat_crown_gold: BuiltinCrownGold,
     cat_bowtie_velvet: BuiltinBowtieVelvet,

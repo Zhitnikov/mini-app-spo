@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ShopItem, ShopItemType, CatWearSlot, CatWearLayout } from '@/types';
 import CatWearPreview from '@/components/cat/CatWearPreview';
@@ -12,7 +13,6 @@ import {
 const TYPES: { id: ShopItemType; label: string }[] = [
     { id: 'BACKGROUND', label: 'Фоны' },
     { id: 'BADGE', label: 'Значки' },
-    { id: 'CAT_ITEM', label: 'Одежда кота' },
     { id: 'CAT_SKIN', label: 'Скин кота (Lottie)' },
     { id: 'ACHIEVEMENT', label: 'Достижения (товар)' },
 ];
@@ -71,6 +71,27 @@ export default function ManagementShopPage() {
             const res = await fetch('/api/upload', { method: 'POST', body: formData });
             const data = await res.json();
             if (data.url) setForm((f) => ({ ...f, imageUrl: data.url }));
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleLottieUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+            const res = await fetch('/api/shop-items/upload-lottie', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.url) {
+                setForm((f) => ({
+                    ...f,
+                    catSkinLottieUrl: data.url,
+                    icon: f.icon || '🐾',
+                }));
+            }
         } finally {
             setUploading(false);
         }
@@ -253,54 +274,65 @@ export default function ManagementShopPage() {
                             <span className="mgmt-label">
                                 {isCatType
                                     ? 'Изображение одежды (PNG с прозрачностью)'
-                                    : isCatSkinType
-                                      ? 'Превью-обложка (опционально)'
-                                      : 'Загрузить изображение (для фонов/аватарок)'}
+                                    : 'Загрузить изображение (для фонов/аватарок)'}
                             </span>
-                            <div className="flex gap-2">
-                                <input
-                                    type="file" accept="image/*" className="mgmt-file w-full"
-                                    onChange={handleFileUpload}
-                                />
-                                {uploading && <span className="loading loading-spinner loading-xs" />}
-                            </div>
-                            {form.imageUrl && (
-                                <div className="mt-2 w-full h-20 rounded-lg overflow-hidden border border-base-300">
-                                    <img src={form.imageUrl} className="w-full h-full object-cover" alt="" />
-                                </div>
+                            {!isCatSkinType && (
+                                <>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="file" accept="image/*" className="mgmt-file w-full"
+                                            onChange={handleFileUpload}
+                                        />
+                                        {uploading && <span className="loading loading-spinner loading-xs" />}
+                                    </div>
+                                    {form.imageUrl && (
+                                        <div className="mt-2 w-full h-20 rounded-lg overflow-hidden border border-base-300">
+                                            <img src={form.imageUrl} className="w-full h-full object-cover" alt="" />
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
 
-                        <div className="mgmt-field">
-                            <span className="mgmt-label">
-                                {isCatType || isCatSkinType
-                                    ? 'Эмодзи в списке'
-                                    : 'Иконка (эмодзи, для значков)'}
-                            </span>
-                            <input
-                                type="text" className="mgmt-input"
-                                value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })}
-                            />
-                        </div>
+                        {!isCatSkinType && (
+                            <div className="mgmt-field">
+                                <span className="mgmt-label">
+                                    {isCatType ? 'Эмодзи в списке' : 'Иконка (эмодзи, для значков)'}
+                                </span>
+                                <input
+                                    type="text" className="mgmt-input"
+                                    value={form.icon} onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                                />
+                            </div>
+                        )}
 
                         {isCatSkinType && (
                             <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-3 space-y-2">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-secondary/80">
-                                    Lottie JSON (путь из public)
+                                    Lottie файл (.lottie)
                                 </p>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="file"
+                                        accept=".lottie"
+                                        className="mgmt-file w-full"
+                                        onChange={handleLottieUpload}
+                                    />
+                                    {uploading && <span className="loading loading-spinner loading-xs" />}
+                                </div>
                                 <input
                                     type="text"
                                     className="mgmt-input w-full"
-                                    placeholder="/lottie/cats/example.json"
                                     value={form.catSkinLottieUrl}
-                                    onChange={(e) => setForm({ ...form, catSkinLottieUrl: e.target.value })}
+                                    readOnly
                                 />
                                 {form.catSkinLottieUrl.trim().startsWith('/') && (
                                     <div className="w-44 aspect-[200/280] mx-auto rounded-2xl overflow-hidden border border-base-300 bg-base-200">
-                                        <CatWearPreview
-                                            skinLottieSrc={form.catSkinLottieUrl.trim()}
-                                            layout={form.catWearLayout}
-                                            slot={form.catWearSlot}
+                                        <DotLottieReact
+                                            src={encodeURI(form.catSkinLottieUrl.trim())}
+                                            loop
+                                            autoplay
+                                            style={{ width: '100%', height: '100%' }}
                                         />
                                     </div>
                                 )}
@@ -426,7 +458,18 @@ export default function ManagementShopPage() {
                             {items.map((item) => (
                                 <div key={item.id} className="card card-side bg-base-100 shadow-sm overflow-hidden min-h-20 border border-base-100">
                                     <figure className="w-20 bg-base-200 shrink-0">
-                                        {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-cover" alt="" /> : <span className="text-3xl flex items-center justify-center h-full">{item.icon}</span>}
+                                        {item.type === 'CAT_SKIN' && item.catSkinLottieUrl ? (
+                                            <DotLottieReact
+                                                src={encodeURI(item.catSkinLottieUrl)}
+                                                loop
+                                                autoplay
+                                                style={{ width: '100%', height: '100%' }}
+                                            />
+                                        ) : item.imageUrl ? (
+                                            <img src={item.imageUrl} className="w-full h-full object-cover" alt="" />
+                                        ) : (
+                                            <span className="text-3xl flex items-center justify-center h-full">{item.icon}</span>
+                                        )}
                                     </figure>
                                     <div className="card-body p-2 justify-center min-w-0">
                                         <div className="flex justify-between items-center gap-2">

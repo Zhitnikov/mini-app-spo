@@ -5,6 +5,7 @@ import { SignJWT, jwtVerify } from 'jose';
 import nodemailer from 'nodemailer';
 import { PrismaService } from '../prisma/prisma.service';
 import { AchievementsService } from '../achievements/achievements.service';
+import { isManagementLeaderRole } from '../common/leader-roles';
 
 @Injectable()
 export class EventsService implements OnModuleInit, OnModuleDestroy {
@@ -19,9 +20,12 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   ) {}
 
   onModuleInit() {
-    this.reminderTimer = setInterval(() => {
-      void this.sendUpcomingEventReminders();
-    }, 60 * 60 * 1000);
+    this.reminderTimer = setInterval(
+      () => {
+        void this.sendUpcomingEventReminders();
+      },
+      60 * 60 * 1000,
+    );
   }
 
   onModuleDestroy() {
@@ -114,7 +118,11 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     if (attendance.event.status !== EventStatus.APPROVED) {
       throw new Error('Event is not published');
     }
-    const qrPayload = await this.createQrPayload(eventId, userId, attendance.id);
+    const qrPayload = await this.createQrPayload(
+      eventId,
+      userId,
+      attendance.id,
+    );
     return {
       attendance,
       qrPayload,
@@ -139,7 +147,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     eventId: string,
     data: Prisma.EventUncheckedUpdateInput,
   ) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId } });
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+    });
     if (!event) throw new Error('Event not found');
     if (event.organizerId !== userId) throw new Error('Forbidden');
 
@@ -154,11 +164,22 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     });
   }
 
-  async adminEditEvent(eventId: string, data: Prisma.EventUncheckedUpdateInput) {
+  async adminEditEvent(
+    eventId: string,
+    data: Prisma.EventUncheckedUpdateInput,
+  ) {
     return this.prisma.event.update({
       where: { id: eventId },
       data,
       include: { organizer: true },
+    });
+  }
+
+  async deleteEvent(eventId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      await tx.eventChecker.deleteMany({ where: { eventId } });
+      await tx.eventAttendee.deleteMany({ where: { eventId } });
+      return tx.event.delete({ where: { id: eventId } });
     });
   }
 
@@ -225,7 +246,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
   async scanAttendance(qrPayload: string, checkerId: string) {
     const payload = await this.verifyQrPayload(qrPayload);
-    const checkerAllowed = await this.isCheckerForEvent(checkerId, payload.eventId);
+    const checkerAllowed = await this.isCheckerForEvent(
+      checkerId,
+      payload.eventId,
+    );
     if (!checkerAllowed) throw new Error('Forbidden');
 
     const attendance = await this.prisma.eventAttendee.findUnique({
@@ -243,7 +267,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     }
 
     await this.prisma.eventAttendee.update({
-      where: { userId_eventId: { userId: payload.userId, eventId: payload.eventId } },
+      where: {
+        userId_eventId: { userId: payload.userId, eventId: payload.eventId },
+      },
       data: { confirmedAt: new Date() },
     });
 
@@ -310,7 +336,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   }
 
   private async ensureEventApproved(eventId: string) {
-    const event = await this.prisma.event.findUnique({ where: { id: eventId } });
+    const event = await this.prisma.event.findUnique({
+      where: { id: eventId },
+    });
     if (!event) throw new Error('Event not found');
     if (event.status !== EventStatus.APPROVED) {
       throw new Error('Event is not published');
@@ -322,18 +350,15 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       this.prisma.eventChecker.findUnique({
         where: { eventId_userId: { eventId, userId } },
       }),
-      this.prisma.user.findUnique({ where: { id: userId }, select: { role: true } }),
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      }),
     ]);
-    const leaders = [
-      'COMSOSTAV',
-      'COMMANDER',
-      'COMMANDANT',
-      'EXTERNAL_COMMISSAR',
-      'INTERNAL_COMMISSAR',
-      'METHODIST',
-      'PRESS_CENTER_HEAD',
-    ];
-    return !!asChecker || (!!asComsostav?.role && leaders.includes(asComsostav.role));
+    return (
+      !!asChecker ||
+      (!!asComsostav?.role && isManagementLeaderRole(asComsostav.role))
+    );
   }
 
   private async createQrPayload(
@@ -357,7 +382,8 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     const eventId = String(payload.eventId || '');
     const userId = String(payload.userId || '');
     const attendanceId = String(payload.attendanceId || '');
-    if (!eventId || !userId || !attendanceId) throw new Error('Invalid payload');
+    if (!eventId || !userId || !attendanceId)
+      throw new Error('Invalid payload');
     return { eventId, userId, attendanceId };
   }
 
@@ -442,10 +468,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
           isReminder: true,
         });
         await this.prisma.eventAttendee.update({
-          where: { userId_eventId: { userId: row.userId, eventId: row.eventId } },
+          where: {
+            userId_eventId: { userId: row.userId, eventId: row.eventId },
+          },
           data: { reminderSentAt: new Date() },
         });
-      } catch {}
+      } catch {
+        /* empty */
+      }
     }
   }
 }

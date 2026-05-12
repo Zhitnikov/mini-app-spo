@@ -7,6 +7,7 @@ import {
 import { Prisma, ShopItemType, type CatWearSlot } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AchievementsService } from '../achievements/achievements.service';
+import { isFighterEligibleRole } from '../common/leader-roles';
 
 export interface CatWearLayoutInput {
   anchorX: number;
@@ -41,6 +42,38 @@ export class ShopService {
   ) {}
 
   static readonly DEFAULT_CAT_SKIN_ID = 'cat_skin_default';
+
+  static readonly STARTER_CAT_SKIN_ID = 'cat_skin_nebula';
+
+  async ensureStarterCatSkinIfNoSkinsOwned(userId: string): Promise<void> {
+    const hasSkin = await this.prisma.userShopItem.findFirst({
+      where: { userId, item: { type: ShopItemType.CAT_SKIN } },
+      select: { id: true },
+    });
+    if (hasSkin) return;
+
+    await this.prisma.userShopItem.upsert({
+      where: {
+        userId_itemId: {
+          userId,
+          itemId: ShopService.STARTER_CAT_SKIN_ID,
+        },
+      },
+      create: { userId, itemId: ShopService.STARTER_CAT_SKIN_ID },
+      update: {},
+    });
+
+    await this.prisma.catConfig.upsert({
+      where: { userId },
+      create: {
+        userId,
+        equippedItems: [],
+        equippedCatSkinId: ShopService.STARTER_CAT_SKIN_ID,
+        skinLoadouts: {},
+      },
+      update: { equippedCatSkinId: ShopService.STARTER_CAT_SKIN_ID },
+    });
+  }
 
   async getCatConfig(userId: string) {
     const config = await this.prisma.catConfig.findUnique({
@@ -150,7 +183,7 @@ export class ShopService {
         icon: icon ?? null,
         imageUrl: imageUrl ?? null,
         requiresFighter: !!requiresFighter,
-        catWearSlot: isCatWear ? catWearSlot ?? null : null,
+        catWearSlot: isCatWear ? (catWearSlot ?? null) : null,
         catWearLayout: isCatWear
           ? catWearLayout != null
             ? (catWearLayout as unknown as Prisma.InputJsonValue)
@@ -181,9 +214,7 @@ export class ShopService {
     if (data.description !== undefined) patch.description = data.description;
     if (data.price !== undefined) {
       patch.price =
-        typeof data.price === 'string'
-          ? parseInt(data.price, 10)
-          : data.price;
+        typeof data.price === 'string' ? parseInt(data.price, 10) : data.price;
     }
     if (data.icon !== undefined) patch.icon = data.icon;
     if (data.imageUrl !== undefined) patch.imageUrl = data.imageUrl;
@@ -241,17 +272,7 @@ export class ShopService {
     if (!user) throw new NotFoundException('User not found');
     if (!item) throw new NotFoundException('Item not found');
 
-    const fighterRoles = [
-      'FIGHTER',
-      'COMMANDER',
-      'COMMANDANT',
-      'EXTERNAL_COMMISSAR',
-      'INTERNAL_COMMISSAR',
-      'METHODIST',
-      'PRESS_CENTER_HEAD',
-      'COMSOSTAV',
-    ];
-    if (item.requiresFighter && !fighterRoles.includes(user.role)) {
+    if (item.requiresFighter && !isFighterEligibleRole(user.role)) {
       throw new ForbiddenException(
         'Этот предмет доступен только для подтверждённых участников',
       );

@@ -126,7 +126,10 @@ export default function ProfileAppearancePage() {
             </section>
 
             <section className="bg-white rounded-2xl border border-slate-200 p-4">
-                <h2 className="text-sm font-bold mb-3">Значки в орбите</h2>
+                <h2 className="text-sm font-bold mb-1">Значки в орбите</h2>
+                <p className="text-[11px] text-slate-500 mb-3 leading-snug">
+                    Все купленные значки ниже. Нажми, чтобы добавить или убрать значок из ореола вокруг аватарки.
+                </p>
                 <div className="grid grid-cols-4 gap-2">
                     {ownedBadges.map((badge: UserShopItem) => {
                         const active = equippedBadges.some((b) => b.itemId === badge.itemId);

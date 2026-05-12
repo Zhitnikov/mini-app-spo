@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faUsers, faStore, faCat, faUser, faGear, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import SpoMiniLogo from '@/components/SpoMiniLogo';
 
 const links = [
-    { href: "/", icon: "🗓️", label: "Мероприятия" },
-    { href: "/users", icon: "👥", label: "Участники" },
-    { href: "/shop", icon: "🛍️", label: "Магазин" },
-    { href: "/cat", icon: "🐱", label: "Кот Олег" },
-    { href: "/profile", icon: "👤", label: "Профиль" },
-    { href: "/management", icon: "⚙️", label: "Управление", divider: true },
+    { href: "/", icon: faCalendarDays, label: "Мероприятия" },
+    { href: "/users", icon: faUsers, label: "Участники" },
+    { href: "/shop", icon: faStore, label: "Магазин" },
+    { href: "/cat", icon: faCat, label: "Кот Олег" },
+    { href: "/profile", icon: faUser, label: "Профиль" },
+    { href: "/management", icon: faGear, label: "Управление", divider: true },
 ];
 
 export default function DesktopSidebar() {
@@ -23,19 +26,15 @@ export default function DesktopSidebar() {
                 className="absolute top-6 -right-3 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-[10px] shadow-sm hover:bg-slate-50 transition-colors z-50 transition-transform duration-300"
                 style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
             >
-                {isCollapsed ? '→' : '←'}
+                <FontAwesomeIcon icon={faChevronLeft} />
             </button>
 
             <Link to="/" className="flex items-center gap-3 group overflow-hidden">
                 <div className="flex-none w-11 h-11 bg-slate-800 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-slate-200 text-white relative overflow-hidden group-hover:bg-slate-900 transition-colors">
                     <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent" />
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="relative transition-all duration-500 group-hover:scale-110 group-hover:-rotate-12 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                        <path d="M12 2C7 2 3 7 3 12c0 2 1.5 5 4 7l-1 3 4-2 4 2-1-3c2.5-2 4-5 4-7 0-5-4-10-9-10z" />
-                        <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                        <path d="M5 14h14" />
-                        <path d="M12 2v2" />
-                        <path d="M12 18v4" />
-                    </svg>
+                    <span className="relative flex items-center justify-center [&_svg]:drop-shadow-sm">
+                        <SpoMiniLogo className="w-[22px] h-[22px] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6" />
+                    </span>
                 </div>
                 {!isCollapsed && (
                     <div className="transition-opacity duration-200 whitespace-nowrap">
@@ -58,7 +57,7 @@ export default function DesktopSidebar() {
                 `}
                                 title={isCollapsed ? link.label : ''}
                             >
-                                <span className="text-lg flex-none">{link.icon}</span>
+                                <span className="text-lg flex-none"><FontAwesomeIcon icon={link.icon} /></span>
                                 {!isCollapsed && <span className="transition-opacity duration-200">{link.label}</span>}
                             </Link>
                         </div>

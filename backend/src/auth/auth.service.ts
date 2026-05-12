@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ShopService } from '../shop/shop.service';
 import { SignJWT, jwtVerify } from 'jose';
 import type { SessionJwtPayload } from '../common/types/session-jwt';
 import type { User } from '@prisma/client';
@@ -11,7 +12,10 @@ const JWT_SECRET = new TextEncoder().encode(
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private shopService: ShopService,
+  ) {}
 
   private isEnvAdminVkId(vkId: number): boolean {
     const raw = process.env.ADMIN_VK_IDS ?? '';
@@ -105,6 +109,8 @@ export class AuthService {
         },
       });
     }
+
+    await this.shopService.ensureStarterCatSkinIfNoSkinsOwned(user.id);
 
     const token = await this.signToken({
       userId: user.id,

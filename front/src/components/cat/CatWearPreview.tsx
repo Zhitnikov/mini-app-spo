@@ -17,14 +17,12 @@ interface CatWearPreviewProps {
     layout: CatWearLayout;
     slot: CatWearSlot;
     previewItemId?: string | null;
-    /** Устарело: превью всегда на SVG-коте */
+    
     skinLottieSrc?: string | null;
     className?: string;
 }
 
-/**
- * Превью примерочной: тот же пропорции, что у CatOleg (200×280).
- */
+
 export default function CatWearPreview({
     imageUrl,
     icon,

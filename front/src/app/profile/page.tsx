@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import OrbitalBadges from '@/components/OrbitalBadges';
+import OrbitalBadges, { ORBIT_AVATAR_Z } from '@/components/OrbitalBadges';
 import CatOleg from '@/components/CatOleg';
-import { equippedWearForActiveSkin } from '@/lib/catSkin';
+import { resolveCatSkinLottieUrl } from '@/lib/catSkin';
 import { ROLE_LABELS } from '@/types';
 import type { UserProfile } from '@/types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faArrowRight, faStore, faPenToSquare, faCoins } from '@fortawesome/free-solid-svg-icons';
 
 export default function ProfilePage() {
     const { user: authUser, loading: authLoading } = useAuth();
@@ -93,7 +95,7 @@ export default function ProfilePage() {
     if (error || !authUser) {
         return (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-slate-50">
-                <div className="text-6xl mb-4">👤</div>
+                <div className="text-6xl mb-4"><FontAwesomeIcon icon={faUser} /></div>
                 <h2 className="text-lg font-bold text-slate-800 mb-2">
                     {!authUser ? 'Доступ ограничен' : 'Загрузка не удалась'}
                 </h2>
@@ -113,8 +115,8 @@ export default function ProfilePage() {
     }
 
     const safeProfile = profile || (authUser as unknown as UserProfile);
-    const catOwnedItems = safeProfile.purchases?.filter((p) => p.item.type === 'CAT_ITEM') || [];
-    const catEquipped = equippedWearForActiveSkin(safeProfile.catConfig);
+    const catOwnedItems = safeProfile.purchases?.filter((p) => p.item.type === 'CAT_SKIN') || [];
+    const catEquipped = safeProfile.catConfig?.equippedCatSkinId || 'cat_skin_default';
     const allMedals = safeProfile.achievements || [];
     const selectedAchievementIds = safeProfile.orbitAchievementIds || [];
     const medals = allMedals.filter((ua) => selectedAchievementIds.includes(ua.achievementId)).slice(0, 6);
@@ -123,7 +125,7 @@ export default function ProfilePage() {
         name: ua.achievement.name,
         icon: ua.achievement.icon,
     }));
-    const badgesPreview = (safeProfile.equippedBadges || []).slice(0, 6);
+    const ownedBadgePurchases = (safeProfile.purchases || []).filter((p) => p.item.type === 'BADGE');
     const attendedEvents = safeProfile.attendances || [];
     const organizedEvents = safeProfile.organizedEvents || [];
 
@@ -131,7 +133,10 @@ export default function ProfilePage() {
         <div className="flex flex-col min-h-full bg-slate-50 pb-20 md:pb-6">
             <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between">
                 <h1 className="text-sm font-bold tracking-tight text-slate-800">ПРОФИЛЬ</h1>
-                <div className="text-[10px] font-medium text-slate-400">ID: {safeProfile.vkId}</div>
+                <div className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                    <FontAwesomeIcon icon={faCoins} />
+                    {safeProfile.coins}
+                </div>
             </header>
 
             <div className="p-4">
@@ -155,9 +160,12 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="absolute left-1/2 -translate-x-1/2 top-16">
-                        <div className="relative w-32 h-32 group">
-                            <OrbitalBadges badges={safeProfile.equippedBadges || []} items={achievementOrbitItems} size={128} />
-                            <label className="avatar absolute inset-0 flex items-center justify-center cursor-pointer">
+                        <div className="relative isolate w-32 h-32 group">
+                            <OrbitalBadges badges={safeProfile.equippedBadges || []} items={achievementOrbitItems} size={132} />
+                            <label
+                                className="avatar absolute inset-0 flex items-center justify-center cursor-pointer pointer-events-auto"
+                                style={{ zIndex: ORBIT_AVATAR_Z }}
+                            >
                                 <input type="file" className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                                 <div className="w-28 h-28 rounded-full ring-4 ring-white shadow-xl overflow-hidden bg-white relative">
                                     <img
@@ -187,7 +195,7 @@ export default function ProfilePage() {
 
                         <div className="mt-8 grid grid-cols-3 gap-0 border-y border-slate-50 py-6">
                             <Link to="/shop" className="p-2 hover:bg-slate-50 rounded-xl transition-colors">
-                                <div className="text-lg font-bold text-slate-800 leading-none">{safeProfile.coins}</div>
+                                <div className="text-lg font-bold text-slate-800 leading-none">{safeProfile.coins} <FontAwesomeIcon icon={faCoins} /></div>
                                 <div className="text-[9px] font-bold text-slate-400 uppercase mt-1">монет</div>
                             </Link>
                             <div className="p-2">
@@ -205,31 +213,35 @@ export default function ProfilePage() {
 
             <div className="px-4 pb-6 space-y-4">
                 <div
-                    className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 flex items-center gap-4 cursor-pointer hover:border-primary/20 transition-colors group"
+                    className="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 flex items-center gap-3 sm:gap-4 cursor-pointer hover:border-primary/20 transition-colors group overflow-hidden"
                     onClick={() => navigate('/cat')}
                 >
-                    <div className="bg-slate-50 p-2 rounded-2xl group-hover:bg-slate-100 transition-colors">
+                    <div className="bg-slate-50 p-2.5 sm:p-3 rounded-3xl group-hover:bg-slate-100 transition-colors shrink-0">
                         <CatOleg
-                            equippedItemIds={catEquipped}
-                            ownedItems={catOwnedItems}
-                            size="sm"
+                            equippedItemIds={[]}
+                            ownedItems={[]}
+                            catSkinLottieSrc={resolveCatSkinLottieUrl(catEquipped, catOwnedItems)}
+                            size="md"
                             interactive={false}
+                            enableIdleFloat={false}
                         />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0 pr-1">
                         <h3 className="text-sm font-bold text-slate-800">Кот Олег</h3>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                            {catEquipped.length > 0 ? `Одето предметов: ${catEquipped.length}` : 'Ваш кот ждет обновок!'}
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                            {catOwnedItems.length > 0 ? 'Выбран анимированный кот' : 'Ваш кот ждет обновок!'}
                         </p>
                     </div>
-                    <div className="text-slate-300 group-hover:text-primary transition-colors">→</div>
+                    <div className="shrink-0 flex items-center justify-center pl-1 pr-0.5 text-slate-300 group-hover:text-primary transition-colors" aria-hidden>
+                        <FontAwesomeIcon icon={faArrowRight} className="text-base sm:text-lg" />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 min-h-44">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">Достижения</h3>
-                            <Link to="/achievements" className="text-[10px] font-bold text-primary hover:underline">Все →</Link>
+                            <Link to="/achievements" className="text-[10px] font-bold text-primary hover:underline">Все <FontAwesomeIcon icon={faArrowRight} /></Link>
                         </div>
                         <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
                             {allMedals.slice(0, 6).map((ua) => (
@@ -246,28 +258,34 @@ export default function ProfilePage() {
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 min-h-44">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wider">Значки</h3>
-                            <button className="text-[10px] font-bold text-primary" onClick={() => navigate('/profile/appearance')}>Настроить →</button>
+                            <button className="text-[10px] font-bold text-primary" onClick={() => navigate('/profile/appearance')}>Настроить <FontAwesomeIcon icon={faArrowRight} /></button>
                         </div>
                         <div className="flex gap-3 overflow-x-auto pb-1 no-scrollbar">
-                            {badgesPreview.map((b) => (
-                                <div key={b.id} className="flex-none flex flex-col items-center text-center w-16">
-                                    <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg mb-1">
-                                        {b.item.icon}
+                            {ownedBadgePurchases.map((p) => (
+                                    <div key={p.id} className="flex-none flex flex-col items-center text-center w-16 relative">
+                                        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-lg mb-1">
+                                            {p.item.icon?.startsWith('/') || p.item.icon?.startsWith('http') ? (
+                                                <img src={p.item.icon} className="w-7 h-7 object-contain" alt="" />
+                                            ) : (
+                                                p.item.icon
+                                            )}
+                                        </div>
+                                        <span className="text-[9px] font-bold text-slate-500 leading-tight">{p.item.name}</span>
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-500 leading-tight">{b.item.name}</span>
-                                </div>
                             ))}
-                            {badgesPreview.length === 0 && <p className="text-xs text-slate-500">Нет выбранных значков</p>}
+                            {ownedBadgePurchases.length === 0 && (
+                                <p className="text-xs text-slate-500">Нет купленных значков — загляни в магазин.</p>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                     <Link to="/shop" className="btn btn-primary h-12 text-[11px] uppercase tracking-wide">
-                        🛍️ В Магазин
+                        <FontAwesomeIcon icon={faStore} /> В Магазин
                     </Link>
                     <Link to="/propose-event" className="btn btn-outline h-12 text-[11px] uppercase tracking-wide border-slate-300 text-slate-600">
-                        📝 Предложить
+                        <FontAwesomeIcon icon={faPenToSquare} /> Предложить
                     </Link>
                 </div>
 

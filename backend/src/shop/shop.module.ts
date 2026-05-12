@@ -7,5 +7,6 @@ import { AchievementsModule } from '../achievements/achievements.module';
   imports: [AchievementsModule],
   controllers: [ShopController],
   providers: [ShopService],
+  exports: [ShopService],
 })
 export class ShopModule {}

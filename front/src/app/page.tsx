@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import EventCard from '@/components/EventCard';
 import type { Event } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faMagnifyingGlass, faLocationDot, faArrowRight, faInbox } from '@fortawesome/free-solid-svg-icons';
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -43,12 +45,12 @@ export default function EventsPage() {
             <p className="text-xs text-base-content/60">Анонсы и запись</p>
           </div>
           <Link to="/propose-event" className="btn btn-primary btn-sm gap-1">
-            <span>+</span> Предложить
+            <FontAwesomeIcon icon={faPlus} /> Предложить
           </Link>
         </div>
 
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40">🔍</span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40"><FontAwesomeIcon icon={faMagnifyingGlass} /></span>
           <input
             type="text"
             placeholder="Поиск мероприятий..."
@@ -63,13 +65,13 @@ export default function EventsPage() {
         <Link to="/map" className="card bg-base-100 shadow-sm border border-primary/20 hover:bg-primary/5 transition-colors group">
           <div className="card-body p-4 flex-row items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📍</div>
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-xl group-hover:scale-110 transition-transform"><FontAwesomeIcon icon={faLocationDot} /></div>
               <div>
                 <h2 className="text-sm font-bold">Карта мероприятий</h2>
                 <p className="text-[10px] text-base-content/60">Смотреть все точки на карте</p>
               </div>
             </div>
-            <span className="text-primary">→</span>
+            <span className="text-primary"><FontAwesomeIcon icon={faArrowRight} /></span>
           </div>
         </Link>
 
@@ -87,7 +89,7 @@ export default function EventsPage() {
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-5xl mb-3">📭</div>
+            <div className="text-5xl mb-3"><FontAwesomeIcon icon={faInbox} /></div>
             <p className="text-base-content/60">
               {search ? 'Ничего не найдено' : 'Мероприятий пока нет'}
             </p>

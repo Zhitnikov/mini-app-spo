@@ -35,7 +35,7 @@ function LocationMarker({ lat, lng, onChange }: Props) {
 }
 
 export default function MapPickerComponent({ lat, lng, onChange }: Props) {
-    const defaultPos: [number, number] = [59.9311, 30.3609]; // SPB
+    const defaultPos: [number, number] = [59.9311, 30.3609]; 
     const center: [number, number] = (lat && lng) ? [lat, lng] : defaultPos;
 
     return (

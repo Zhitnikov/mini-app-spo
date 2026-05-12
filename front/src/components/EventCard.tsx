@@ -1,4 +1,6 @@
 import type { Event } from '@/types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faClock, faLocationDot, faUsers, faCoins, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 export default function EventCard({ event }: { event: Event }) {
     return (
@@ -11,11 +13,11 @@ export default function EventCard({ event }: { event: Event }) {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-4xl">📅</div>
+                    <div className="w-full h-full flex items-center justify-center text-4xl"><FontAwesomeIcon icon={faCalendarDays} /></div>
                 )}
                 <div className="absolute top-3 right-3">
                     <span className="badge badge-primary font-medium text-[11px] shadow-sm">
-                        +{event.coinsReward} 🪙
+                        <FontAwesomeIcon icon={faCoins} /> +{event.coinsReward}
                     </span>
                 </div>
             </figure>
@@ -36,11 +38,11 @@ export default function EventCard({ event }: { event: Event }) {
 
                     <div className="flex flex-col gap-1.5 mt-4">
                         <div className="flex items-center gap-2 text-base-content/40">
-                            <span className="text-sm">🕐</span>
+                            <span className="text-sm"><FontAwesomeIcon icon={faClock} /></span>
                             <span className="text-[11px] font-medium">{event.dateLabel || 'Дата не указана'}</span>
                         </div>
                         <div className="flex items-center gap-2 text-base-content/40">
-                            <span className="text-sm">📍</span>
+                            <span className="text-sm"><FontAwesomeIcon icon={faLocationDot} /></span>
                             <span className="text-[11px] font-medium truncate">{event.location || 'Место не указано'}</span>
                         </div>
                     </div>
@@ -48,13 +50,13 @@ export default function EventCard({ event }: { event: Event }) {
 
                 <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center gap-1.5">
-                        <span className="text-xs opacity-50">👥</span>
+                        <span className="text-xs opacity-50"><FontAwesomeIcon icon={faUsers} /></span>
                         <span className="text-[11px] text-base-content/40 font-semibold">
                             {event._count?.attendances ?? 0} чел.
                         </span>
                     </div>
                     <div className="text-[11px] font-bold text-primary group-hover:underline transition-all cursor-pointer">
-                        Подробнее →
+                        Подробнее <FontAwesomeIcon icon={faArrowRight} />
                     </div>
                 </div>
             </div>

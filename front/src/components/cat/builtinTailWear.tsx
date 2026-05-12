@@ -1,6 +1,4 @@
-/**
- * Рисуется ВНУТРИ <g> хвоста — качается вместе с ним.
- */
+
 export function BuiltinTailRibbonG() {
     return (
         <g>

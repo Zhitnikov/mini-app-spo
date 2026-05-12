@@ -37,7 +37,7 @@ export const CAT_WEAR_SLOTS: { id: CatWearSlot; label: string }[] = [
     { id: 'ACCESSORY', label: 'Другое' },
 ];
 
-/** z-index: ниже = дальше «сзади» */
+
 export const DEFAULT_SLOT_LAYOUTS: Record<CatWearSlot, CatWearLayout> = {
     BACK: { anchorX: 0.38, anchorY: 0.49, widthPercent: 0.48, zIndex: 6 },
     TAIL: { anchorX: 0.22, anchorY: 0.71, widthPercent: 0.42, zIndex: 10 },

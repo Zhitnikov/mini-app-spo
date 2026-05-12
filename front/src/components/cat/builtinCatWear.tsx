@@ -68,7 +68,7 @@ export const BUILTIN_MAP: Record<string, FC<BuiltinProps>> = {
     ...CATALOG_WEAR_MAP,
 };
 
-/** Включая хвостовой бант (рендер внутри SVG хвоста, не в BUILTIN_MAP) */
+
 export const ALL_BUILTIN_WEAR_IDS = [...new Set([...Object.keys(BUILTIN_MAP), 'cat_tail_ribbon'])];
 
 export function getBuiltinWearComponent(itemId: string): FC<BuiltinProps> | null {

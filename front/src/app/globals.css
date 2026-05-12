@@ -19,7 +19,7 @@
     margin: 0;
     background-color: #f1f5f9;
     overscroll-behavior: none;
-    font-family: var(--font-sans);
+    font-family: var(--font-sans), serif;
     color: #334155;
   }
 
@@ -64,7 +64,6 @@
   }
 }
 
-/* Формы в админке: единый вид полей (input/textarea/select) */
 @layer components {
   .mgmt-label {
     display: block;
