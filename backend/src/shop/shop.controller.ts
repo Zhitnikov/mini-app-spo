@@ -23,9 +23,9 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { mkdirSync } from 'fs';
+import { extname } from 'path';
 import { randomUUID } from 'crypto';
+import { ensureLottieDir } from '../common/lottie-storage';
 import {
   ShopService,
   type CreateShopItemInput,
@@ -36,20 +36,12 @@ import { User } from '../common/decorators/user.decorator';
 import type { SessionJwtPayload } from '../common/types/session-jwt';
 import { isManagementLeaderRole } from '../common/leader-roles';
 
+const lottieStorageDir = ensureLottieDir();
+
 @ApiTags('shop', 'cat')
 @Controller('api')
 export class ShopController {
-  private readonly lottieDir = join(
-    process.cwd(),
-    '..',
-    'front',
-    'public',
-    'lottie',
-  );
-
-  constructor(private readonly shopService: ShopService) {
-    mkdirSync(this.lottieDir, { recursive: true });
-  }
+  constructor(private readonly shopService: ShopService) {}
 
   @Get('shop')
   @ApiOperation({ summary: 'Каталог товаров' })
@@ -180,8 +172,7 @@ export class ShopController {
         cb(null, ext === '.lottie');
       },
       storage: diskStorage({
-        destination: (req, file, cb) =>
-          cb(null, join(process.cwd(), '..', 'front', 'public', 'lottie')),
+        destination: (req, file, cb) => cb(null, lottieStorageDir),
         filename: (req, file, cb) => {
           const ext = extname(file.originalname).toLowerCase();
           cb(null, `${randomUUID()}${ext === '.lottie' ? ext : '.lottie'}`);
