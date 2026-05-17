@@ -1,13 +1,22 @@
 import { mkdirSync } from 'fs';
 import { join } from 'path';
 
+function resolvePathFromEnv(value: string): string {
+  const trimmed = value.trim();
+  const isAbsolute =
+    trimmed.startsWith('/') || /^[A-Za-z]:[\\/]/.test(trimmed);
+  return isAbsolute ? trimmed : join(process.cwd(), trimmed);
+}
+
 export function resolveLottieDir(): string {
-  const override = process.env.LOTTIE_DIR?.trim();
-  if (override) {
-    const isAbsolute =
-      override.startsWith('/') ||
-      /^[A-Za-z]:[\\/]/.test(override);
-    return isAbsolute ? override : join(process.cwd(), override);
+  const lottieDir = process.env.LOTTIE_DIR?.trim();
+  if (lottieDir) {
+    return resolvePathFromEnv(lottieDir);
+  }
+
+  const webRoot = process.env.STATIC_WEB_ROOT?.trim();
+  if (webRoot) {
+    return join(resolvePathFromEnv(webRoot), 'lottie');
   }
 
   const segment =
