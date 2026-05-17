@@ -66,6 +66,10 @@ export default function ManagementEventsPage() {
                 const params = new URLSearchParams();
                 if (checkerQuery.trim()) params.set('q', checkerQuery.trim());
                 const res = await fetch(`/api/users?${params.toString()}`);
+                if (!res.ok) {
+                    setCheckerResults([]);
+                    return;
+                }
                 const data = await res.json();
                 setCheckerResults(Array.isArray(data) ? data : []);
             } finally {

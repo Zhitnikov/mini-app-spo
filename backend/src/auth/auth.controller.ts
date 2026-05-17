@@ -12,6 +12,7 @@ import {
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
+import { readSessionToken } from './session-token';
 import type { Request, Response } from 'express';
 import { UserRole } from '@prisma/client';
 
@@ -74,7 +75,7 @@ export class AuthController {
 
     res.cookie('spo_session', result.token, this.buildSessionCookieOptions());
 
-    return result;
+    return { user: result.user, token: result.token };
   }
 
   @Get()
@@ -86,39 +87,41 @@ export class AuthController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const cookies = req.cookies as
-      | Record<string, string | undefined>
-      | undefined;
-    const token = cookies?.['spo_session'];
-    if (typeof token !== 'string')
-      throw new UnauthorizedException('No session');
+    const token = readSessionToken(req);
+    if (!token) throw new UnauthorizedException('No session');
 
     const session = await this.authService.verifyToken(token);
     if (!session) throw new UnauthorizedException('Invalid session');
 
-    const user = await this.usersService.findById(session.userId);
+    let user = await this.usersService.findById(session.userId);
     if (!user) throw new NotFoundException('User not found');
 
-    const { user: afterEnvAdmin, newToken } =
-      await this.authService.refreshSessionIfEnvAdmin(user);
-    if (newToken) {
-      res.cookie('spo_session', newToken, this.buildSessionCookieOptions());
+    const envRefresh = await this.authService.refreshSessionIfEnvAdmin(user);
+    if (envRefresh.newToken) {
+      const reloaded = await this.usersService.findById(session.userId);
+      if (reloaded) user = reloaded;
     }
 
     if (
-      afterEnvAdmin.vkId === 1 &&
+      user.vkId === 1 &&
       process.env.NODE_ENV === 'development' &&
-      afterEnvAdmin.role !== UserRole.COMMANDER
+      user.role !== UserRole.COMMANDER
     ) {
-      await this.usersService.update(afterEnvAdmin.id, {
+      await this.usersService.update(user.id, {
         role: UserRole.COMMANDER,
-        coins: { set: Math.max(afterEnvAdmin.coins, 1000) },
+        coins: { set: Math.max(user.coins, 1000) },
       });
-      const refreshed = await this.usersService.findById(afterEnvAdmin.id);
-      return refreshed ?? afterEnvAdmin;
+      user = (await this.usersService.findById(user.id)) ?? user;
     }
 
-    return afterEnvAdmin;
+    const sessionToken = await this.authService.signToken({
+      userId: user.id,
+      vkId: user.vkId,
+      role: user.role,
+    });
+    res.cookie('spo_session', sessionToken, this.buildSessionCookieOptions());
+
+    return { user, token: sessionToken };
   }
 
   @Delete()

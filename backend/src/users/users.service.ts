@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UserRole, type Prisma } from '@prisma/client';
 import { AchievementsService } from '../achievements/achievements.service';
 import { ShopService } from '../shop/shop.service';
+import { rolesMatchingSearch } from '../common/role-search';
 
 export type UserRoleLocal =
   | 'CANDIDATE'
@@ -176,21 +177,59 @@ export class UsersService {
 
   async getAll(search?: string) {
     const q = search?.trim();
-    return this.prisma.user.findMany({
-      where: q
-        ? {
+    const include = {
+      _count: { select: { attendances: true } },
+    } as const;
+
+    if (!q) {
+      return this.prisma.user.findMany({
+        orderBy: { coins: 'desc' },
+        include,
+        take: 50,
+      });
+    }
+
+    if (/^\d+$/.test(q)) {
+      const candidates = await this.prisma.user.findMany({
+        orderBy: { coins: 'desc' },
+        include,
+        take: 300,
+      });
+      return candidates.filter((u) => String(u.vkId).includes(q)).slice(0, 50);
+    }
+
+    const roleMatches = rolesMatchingSearch(q);
+    const nameOr: Prisma.UserWhereInput[] = [
+      { fullName: { contains: q, mode: 'insensitive' } },
+      { firstName: { contains: q, mode: 'insensitive' } },
+      { lastName: { contains: q, mode: 'insensitive' } },
+    ];
+    if (roleMatches.length > 0) {
+      nameOr.push({ role: { in: roleMatches } });
+    }
+
+    const parts = q.split(/\s+/).filter(Boolean);
+    if (parts.length > 1) {
+      return this.prisma.user.findMany({
+        where: {
+          AND: parts.map((part) => ({
             OR: [
-              { fullName: { contains: q, mode: 'insensitive' } },
-              { firstName: { contains: q, mode: 'insensitive' } },
-              { lastName: { contains: q, mode: 'insensitive' } },
-              { role: { equals: q as UserRole } },
+              { fullName: { contains: part, mode: 'insensitive' } },
+              { firstName: { contains: part, mode: 'insensitive' } },
+              { lastName: { contains: part, mode: 'insensitive' } },
             ],
-          }
-        : undefined,
+          })),
+        },
+        orderBy: { coins: 'desc' },
+        include,
+        take: 50,
+      });
+    }
+
+    return this.prisma.user.findMany({
+      where: { OR: nameOr },
       orderBy: { coins: 'desc' },
-      include: {
-        _count: { select: { attendances: true } },
-      },
+      include,
       take: 50,
     });
   }

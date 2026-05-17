@@ -3,20 +3,31 @@ import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCalendarDays, faUsers, faStore, faCat, faUser, faGear, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import SpoMiniLogo from '@/components/SpoMiniLogo';
+import { useAuth } from '@/contexts/AuthContext';
 
-const links = [
+type NavLink = {
+    href: string;
+    icon: typeof faCalendarDays;
+    label: string;
+    divider?: boolean;
+};
+
+const baseLinks: NavLink[] = [
     { href: "/", icon: faCalendarDays, label: "Мероприятия" },
     { href: "/users", icon: faUsers, label: "Участники" },
     { href: "/shop", icon: faStore, label: "Магазин" },
     { href: "/cat", icon: faCat, label: "Кот Олег" },
     { href: "/profile", icon: faUser, label: "Профиль" },
-    { href: "/management", icon: faGear, label: "Управление", divider: true },
 ];
+
+const managementLink: NavLink = { href: "/management", icon: faGear, label: "Управление", divider: true };
 
 export default function DesktopSidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
     const pathname = location.pathname;
+    const { isComsostav } = useAuth();
+    const links = isComsostav ? [...baseLinks, managementLink] : baseLinks;
 
     return (
         <aside className={`hidden md:flex flex-col transition-all duration-300 relative border-r border-slate-100 bg-slate-50/50 p-4 space-y-8 ${isCollapsed ? 'w-20' : 'w-64'}`}>

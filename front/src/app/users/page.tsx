@@ -12,8 +12,12 @@ export default function UsersPage() {
         const params = new URLSearchParams();
         if (search) params.set('q', search);
         fetch(`/api/users?${params}`)
-            .then((r) => r.json())
-            .then((data) => { setUsers(Array.isArray(data) ? data : []); setLoading(false); })
+            .then(async (r) => {
+                if (!r.ok) return [];
+                const data = await r.json();
+                return Array.isArray(data) ? data : [];
+            })
+            .then((data) => { setUsers(data); setLoading(false); })
             .catch(() => setLoading(false));
     }, [search]);
 

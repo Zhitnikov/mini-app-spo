@@ -2,12 +2,14 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import bridge from '@vkontakte/vk-bridge';
 import type { UserProfile } from '@/types';
 import { isManagementLeaderRole } from '@/lib/leaderRoles';
+import { parseAuthResponse } from '@/lib/authResponse';
 
 interface AuthContextValue {
     user: UserProfile | null;
     loading: boolean;
     isComsostav: boolean;
     refetch: () => Promise<void>;
+    patchUser: (patch: Partial<UserProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -15,6 +17,7 @@ const AuthContext = createContext<AuthContextValue>({
     loading: true,
     isComsostav: false,
     refetch: async () => { },
+    patchUser: () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -32,9 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         _count: { attendances: 0, organizedEvents: 0 }
-    } as any : null);
+    } as unknown as UserProfile : null);
 
     const [loading, setLoading] = useState(process.env.NODE_ENV !== 'development');
+
+    const patchUser = useCallback((patch: Partial<UserProfile>) => {
+        setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+    }, []);
 
     const initDevAuth = useCallback(async () => {
         if (process.env.NODE_ENV !== 'development') return;
@@ -52,7 +59,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (authRes.ok) {
                 const data = await authRes.json();
-                setUser(data.user || data);
+                const parsed = parseAuthResponse(data);
+                if (parsed) setUser(parsed);
             }
         } catch (e) {
             console.error('[DEV] Dev auth failed', e);
@@ -66,9 +74,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const res = await fetch('/api/auth/vk');
             if (res.ok) {
                 const data = await res.json();
-                setUser(data);
-                setLoading(false);
-                return true;
+                const parsed = parseAuthResponse(data);
+                if (parsed) {
+                    setUser(parsed);
+                    return true;
+                }
             }
         } catch (e) {
             console.error('[AUTH] Session fetch failed', e);
@@ -87,7 +97,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             try {
                 try {
                     await bridge.send('VKWebAppInit');
-                } catch (e) { }
+                } catch {
+                    /* VK bridge optional */
+                }
 
                 const hasSession = await fetchSession();
                 if (hasSession) return;
@@ -107,9 +119,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
                     if (authRes.ok) {
                         const data = await authRes.json();
-                        setUser(data.user || data);
+                        const parsed = parseAuthResponse(data);
+                        if (parsed) setUser(parsed);
                     }
-                } catch (vkError) {
+                } catch {
+                    /* user declined VK auth */
                 }
             } catch (error) {
                 console.error('[AUTH] Critical init error:', error);
@@ -121,16 +135,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         init();
     }, [initDevAuth, fetchSession]);
 
+    useEffect(() => {
+        if (process.env.NODE_ENV === 'development') return;
+
+        const refresh = () => {
+            if (document.visibilityState === 'visible') {
+                void fetchSession();
+            }
+        };
+
+        document.addEventListener('visibilitychange', refresh);
+        window.addEventListener('focus', refresh);
+        const interval = window.setInterval(() => {
+            void fetchSession();
+        }, 60_000);
+
+        return () => {
+            document.removeEventListener('visibilitychange', refresh);
+            window.removeEventListener('focus', refresh);
+            window.clearInterval(interval);
+        };
+    }, [fetchSession]);
+
+    const refetch = useCallback(async () => {
+        setLoading(true);
+        try {
+            await fetchSession();
+        } finally {
+            setLoading(false);
+        }
+    }, [fetchSession]);
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 loading,
                 isComsostav: user ? isManagementLeaderRole(user.role) : false,
-                refetch: async () => {
-                    setLoading(true);
-                    await fetchSession();
-                },
+                refetch,
+                patchUser,
             }}
         >
             {children}

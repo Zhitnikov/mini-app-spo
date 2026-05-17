@@ -8,6 +8,7 @@ import type { Request } from 'express';
 import { jwtVerify } from 'jose';
 import type { SessionJwtPayload } from '../common/types/session-jwt';
 import { PrismaService } from '../prisma/prisma.service';
+import { readSessionToken } from './session-token';
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || 'fallback_secret_change_me',
@@ -19,12 +20,9 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const cookies = request.cookies as
-      | Record<string, string | undefined>
-      | undefined;
-    const token = cookies?.['spo_session'];
+    const token = readSessionToken(request);
 
-    if (typeof token !== 'string') {
+    if (!token) {
       throw new UnauthorizedException('No session token');
     }
 

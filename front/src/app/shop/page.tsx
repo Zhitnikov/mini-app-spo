@@ -16,7 +16,7 @@ const TABS: Array<{ id: TabId; label: string; type: 'BACKGROUND' | 'BADGE' | 'CA
 ];
 
 export default function ShopPage() {
-    const { user, refetch } = useAuth();
+    const { user, patchUser } = useAuth();
     const [tab, setTab] = useState<TabId>('backgrounds');
     const [items, setItems] = useState<ShopItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -25,10 +25,15 @@ export default function ShopPage() {
     const [ownedIds, setOwnedIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
-        if (!user) return;
-        const owned = new Set(user.purchases?.map((p) => p.itemId) || []);
-        setOwnedIds(owned);
-    }, [user]);
+        if (!user?.purchases?.length) return;
+        setOwnedIds((prev) => {
+            const merged = new Set(prev);
+            for (const p of user.purchases ?? []) {
+                merged.add(p.itemId);
+            }
+            return merged;
+        });
+    }, [user?.id, user?.purchases]);
 
     useEffect(() => {
         const currentTab = TABS.find((t) => t.id === tab);
@@ -60,10 +65,38 @@ export default function ShopPage() {
             const data = await res.json();
             if (res.ok) {
                 setOwnedIds((prev) => new Set([...prev, item.id]));
-                await refetch();
+                const purchase = data.purchase as { itemId: string; item?: ShopItem } | undefined;
+                const nextCoins =
+                    typeof data.user?.coins === 'number'
+                        ? data.user.coins
+                        : (user.coins ?? 0) - item.price;
+                const prevPurchases = user.purchases ?? [];
+                const alreadyListed = prevPurchases.some((p) => p.itemId === item.id);
+                patchUser({
+                    coins: nextCoins,
+                    purchases: alreadyListed
+                        ? prevPurchases
+                        : [
+                            ...prevPurchases,
+                            {
+                                id: purchase?.itemId ?? item.id,
+                                itemId: item.id,
+                                userId: user.id,
+                                purchasedAt: new Date().toISOString(),
+                                item: purchase?.item ?? item,
+                            },
+                        ],
+                });
                 showToast(`Куплено: ${item.name}! -${item.price} 🪙`, 'success');
             } else {
-                showToast(`${data.error || 'Ошибка покупки'}`, 'error');
+                const msg =
+                    typeof data.message === 'string'
+                        ? data.message
+                        : data.error || 'Ошибка покупки';
+                if (res.status === 400 && String(msg).toLowerCase().includes('куплен')) {
+                    setOwnedIds((prev) => new Set([...prev, item.id]));
+                }
+                showToast(msg, 'error');
             }
         } finally {
             setBuying(null);

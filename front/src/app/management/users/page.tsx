@@ -62,9 +62,13 @@ export default function ManagementUsersPage() {
         const params = new URLSearchParams();
         if (search) params.set('q', search);
         fetch(`/api/users?${params}`, fetchOpts)
-            .then((r) => r.json())
+            .then(async (r) => {
+                if (!r.ok) return [];
+                const data = await r.json();
+                return Array.isArray(data) ? data : [];
+            })
             .then((data) => {
-                setUsers(Array.isArray(data) ? data : []);
+                setUsers(data);
                 setFetching(false);
             })
             .catch(() => setFetching(false));
