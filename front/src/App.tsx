@@ -20,6 +20,9 @@ import CatPage from './app/cat/page';
 import EmailConsentPolicyPage from './app/legal/email-consent/page';
 import AchievementsPage from './app/achievements/page';
 import ProfileAppearancePage from './app/profile/appearance/page';
+import ResourcesPage from './app/resources/page';
+import TreasuryPage from './app/resources/treasury/page';
+import MaterialsPage from './app/resources/materials/page';
 
 const App: React.FC = () => {
   return (
@@ -33,6 +36,9 @@ const App: React.FC = () => {
             <Route path="/events/:id/scan" element={<EventScanPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/resources/treasury" element={<TreasuryPage />} />
+            <Route path="/resources/materials" element={<MaterialsPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/users/:id" element={<UserProfilePage />} />
             <Route path="/map" element={<MapPage />} />

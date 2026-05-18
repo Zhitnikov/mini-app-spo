@@ -41,6 +41,7 @@ async function bootstrap() {
     .addTag('upload', 'Загрузка файлов')
     .addTag('badges', 'Значки на орбите')
     .addTag('notifications', 'Уведомления')
+    .addTag('resources', 'Ресурсы: касса и материалы')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

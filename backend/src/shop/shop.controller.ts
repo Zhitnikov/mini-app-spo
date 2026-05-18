@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Query,
   Body,
   Param,
@@ -145,6 +146,17 @@ export class ShopController {
     if (!isManagementLeaderRole(user.role))
       throw new ForbiddenException('Forbidden');
     return this.shopService.updateShopItem(id, body);
+  }
+
+  @Delete('shop-items/:id')
+  @UseGuards(AuthGuard)
+  @ApiCookieAuth('spo_session')
+  @ApiOperation({ summary: 'Удалить товар (комсостав)' })
+  @ApiParam({ name: 'id' })
+  async deleteItem(@Param('id') id: string, @User() user: SessionJwtPayload) {
+    if (!isManagementLeaderRole(user.role))
+      throw new ForbiddenException('Forbidden');
+    return this.shopService.deleteShopItem(id);
   }
 
   @Post('shop-items/upload-lottie')

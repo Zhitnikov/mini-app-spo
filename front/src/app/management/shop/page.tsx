@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useAuth } from '@/contexts/AuthContext';
 import type { ShopItem, ShopItemType, CatWearSlot, CatWearLayout } from '@/types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import CatWearPreview from '@/components/cat/CatWearPreview';
 import {
     CAT_WEAR_SLOTS,
@@ -124,8 +126,8 @@ export default function ManagementShopPage() {
     };
 
     const startEdit = (item: ShopItem) => {
+        setEditingId(item.id);
         if (item.type === 'CAT_ITEM') {
-            setEditingId(item.id);
             const slot = (item.catWearSlot as CatWearSlot) || 'HAT';
             setForm({
                 name: item.name,
@@ -142,7 +144,6 @@ export default function ManagementShopPage() {
             return;
         }
         if (item.type === 'CAT_SKIN') {
-            setEditingId(item.id);
             setForm({
                 name: item.name,
                 description: item.description,
@@ -155,6 +156,33 @@ export default function ManagementShopPage() {
                 catWearLayout: defaultLayoutFor('HAT'),
                 catSkinLottieUrl: item.catSkinLottieUrl || '',
             });
+            return;
+        }
+        setForm({
+            name: item.name,
+            description: item.description,
+            price: item.price,
+            type: item.type,
+            icon: item.icon || '',
+            imageUrl: item.imageUrl || '',
+            requiresFighter: item.requiresFighter,
+            catWearSlot: 'HAT',
+            catWearLayout: defaultLayoutFor('HAT'),
+            catSkinLottieUrl: '',
+        });
+    };
+
+    const handleDelete = async (item: ShopItem) => {
+        if (!confirm(`Удалить «${item.name}»? Покупки и привязки будут сброшены.`)) return;
+        setProcessing(true);
+        try {
+            const res = await fetch(`/api/shop-items/${item.id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setItems((prev) => prev.filter((x) => x.id !== item.id));
+                if (editingId === item.id) resetForm();
+            }
+        } finally {
+            setProcessing(false);
         }
     };
 
@@ -477,15 +505,25 @@ export default function ManagementShopPage() {
                                             <span className="badge badge-warning badge-xs shrink-0">{item.price} 🪙</span>
                                         </div>
                                         <p className="text-[10px] text-base-content/50 uppercase truncate">{item.type}</p>
-                                        {(item.type === 'CAT_ITEM' || item.type === 'CAT_SKIN') && (
+                                        <div className="flex gap-1 mt-2 flex-wrap">
                                             <button
                                                 type="button"
-                                                className="btn btn-xs btn-outline btn-primary mt-1 w-fit"
+                                                className="btn btn-xs btn-outline btn-primary gap-1"
                                                 onClick={() => startEdit(item)}
                                             >
-                                                {item.type === 'CAT_SKIN' ? 'Редактировать скин' : 'Редактировать примерку'}
+                                                <FontAwesomeIcon icon={faPen} />
+                                                Изменить
                                             </button>
-                                        )}
+                                            <button
+                                                type="button"
+                                                className="btn btn-xs btn-outline btn-error gap-1"
+                                                onClick={() => handleDelete(item)}
+                                                disabled={processing}
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} />
+                                                Удалить
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -496,3 +534,5 @@ export default function ManagementShopPage() {
         </div>
     );
 }
+
+

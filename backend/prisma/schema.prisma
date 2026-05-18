@@ -77,6 +77,8 @@ model User {
   receivedCoins   CoinTransaction[] @relation("CoinReceiver")
   pollResponses   PollResponse[]
   checkerAssignments EventChecker[]
+  uploadedMaterials Material[] @relation("MaterialUploader")
+  materialAccess    MaterialUserAccess[]
 }
 
 
@@ -263,4 +265,47 @@ model Notification {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model SquadTreasuryCache {
+  id       String   @id @default("default")
+  headers  Json
+  rows     Json
+  syncedAt DateTime @updatedAt
+}
+
+model Material {
+  id           String   @id @default(cuid())
+  title        String
+  fileUrl      String
+  fileName     String
+  mimeType     String?
+  uploadedById String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  uploadedBy User @relation("MaterialUploader", fields: [uploadedById], references: [id])
+  roleAccess MaterialRoleAccess[]
+  userAccess MaterialUserAccess[]
+}
+
+model MaterialRoleAccess {
+  id         String   @id @default(cuid())
+  materialId String
+  role       UserRole
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([materialId, role])
+}
+
+model MaterialUserAccess {
+  id         String @id @default(cuid())
+  materialId String
+  userId     String
+
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([materialId, userId])
 }

@@ -263,6 +263,23 @@ export class ShopService {
     return values.includes(type) ? (type as ShopItemType) : undefined;
   }
 
+  async deleteShopItem(id: string) {
+    const existing = await this.prisma.shopItem.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Предмет не найден');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userShopItem.deleteMany({ where: { itemId: id } });
+      await tx.userBadge.deleteMany({ where: { itemId: id } });
+      await tx.user.updateMany({
+        where: { backgroundId: id },
+        data: { backgroundId: null },
+      });
+      await tx.shopItem.delete({ where: { id } });
+    });
+
+    return { ok: true };
+  }
+
   async buyItem(userId: string, itemId: string) {
     const [user, item] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: userId } }),

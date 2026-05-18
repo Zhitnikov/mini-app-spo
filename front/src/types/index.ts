@@ -170,6 +170,30 @@ export const ROLE_LABELS: Record<UserRole, string> = {
     COMSOSTAV: 'Комсостав',
 };
 
+export interface MaterialDocument {
+    id: string;
+    title: string;
+    fileUrl: string;
+    fileName: string;
+    mimeType?: string | null;
+    uploadedById: string;
+    createdAt: string;
+    updatedAt: string;
+    uploadedBy?: { id: string; fullName: string };
+    roleAccess?: { id: string; role: UserRole }[];
+    userAccess?: {
+        id: string;
+        userId: string;
+        user?: { id: string; fullName: string; vkId: number };
+    }[];
+}
+
+export interface SquadTreasuryData {
+    headers: string[];
+    rows: string[][];
+    syncedAt: string;
+}
+
 export const FIGHTER_ROLES: UserRole[] = [
     'FIGHTER',
     'COMMANDER',

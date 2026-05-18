@@ -10,6 +10,7 @@ import { UploadModule } from './upload/upload.module';
 import { MiscModule } from './misc/misc.module';
 import { AuthGuard } from './auth/auth.guard';
 import { GraphqlModule } from './graphql/graphql.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GraphqlModule } from './graphql/graphql.module';
     UploadModule,
     MiscModule,
     GraphqlModule,
+    ResourcesModule,
   ],
   providers: [AuthGuard],
 })

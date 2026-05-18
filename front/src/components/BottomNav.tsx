@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faUsers, faStore, faUser, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faUsers, faStore, faUser, faGear, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 
 const navItems = [
     { href: '/', label: 'Мероприятия', icon: faCalendarDays },
-    { href: '/users', label: 'Участники', icon: faUsers },
+    { href: '/users', label: 'Люди', icon: faUsers },
     { href: '/shop', label: 'Магазин', icon: faStore },
+    { href: '/resources', label: 'Ресурсы', icon: faFolderOpen },
     { href: '/profile', label: 'Профиль', icon: faUser },
 ];
 

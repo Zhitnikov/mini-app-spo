@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faUsers, faStore, faCat, faUser, faGear, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faUsers, faStore, faCat, faUser, faGear, faChevronLeft, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
 import SpoMiniLogo from '@/components/SpoMiniLogo';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -16,6 +16,7 @@ const baseLinks: NavLink[] = [
     { href: "/", icon: faCalendarDays, label: "Мероприятия" },
     { href: "/users", icon: faUsers, label: "Участники" },
     { href: "/shop", icon: faStore, label: "Магазин" },
+    { href: "/resources", icon: faFolderOpen, label: "Ресурсы" },
     { href: "/cat", icon: faCat, label: "Кот Олег" },
     { href: "/profile", icon: faUser, label: "Профиль" },
 ];

@@ -102,8 +102,8 @@ export default function UserProfilePage() {
                         </div>
                     </div>
 
-                    <div className="pt-16 pb-8 px-6 text-center">
-                        <h2 className="text-2xl font-bold text-slate-800 tracking-tight">{profile.fullName}</h2>
+                    <div className="pt-16 pb-8 px-4 sm:px-6 text-center">
+                        <h2 className="text-lg sm:text-2xl font-bold text-slate-800 tracking-tight break-words px-1">{profile.fullName}</h2>
                         <div className="mt-2 inline-flex items-center gap-2 bg-slate-100 text-slate-500 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
                             {ROLE_LABELS[profile.role] || profile.role}
                         </div>
@@ -127,20 +127,20 @@ export default function UserProfilePage() {
             </div>
 
             <div className="px-4 pb-6 space-y-4">
-                <div className="bg-white p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-50 flex items-center gap-5 min-h-[240px]">
-                    <div className="bg-slate-50 p-3 rounded-3xl shrink-0">
+                <div className="bg-white p-4 sm:p-6 rounded-[2.5rem] shadow-lg shadow-slate-200/50 border border-slate-50 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 overflow-hidden">
+                    <div className="bg-slate-50 p-2 sm:p-3 rounded-3xl shrink-0 w-full max-w-[132px] sm:max-w-none flex justify-center mx-auto sm:mx-0">
                         <CatOleg
                             equippedItemIds={[]}
                             ownedItems={[]}
                             catSkinLottieSrc={resolveCatSkinLottieUrl(equippedCatSkinId, catSkinPurchases)}
-                            size="lg"
+                            size="md"
                             interactive={false}
                             enableIdleFloat={false}
                         />
                     </div>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 w-full text-center sm:text-left">
                         <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">Верный спутник</p>
-                        <h3 className="text-lg font-bold text-slate-800 uppercase tracking-tighter">Кот Олег</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-slate-800 uppercase tracking-tighter break-words">Кот Олег</h3>
                     </div>
                 </div>
 

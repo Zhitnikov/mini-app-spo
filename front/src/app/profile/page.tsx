@@ -187,8 +187,8 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    <div className="pt-16 pb-8 px-6 text-center">
-                        <h2 className="text-xl font-bold text-slate-800 tracking-tight">{safeProfile.fullName}</h2>
+                    <div className="pt-16 pb-8 px-4 sm:px-6 text-center">
+                        <h2 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight break-words px-1">{safeProfile.fullName}</h2>
                         <div className="mt-2 inline-flex items-center gap-2 bg-slate-50 text-slate-500 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider">
                             {ROLE_LABELS[safeProfile.role] || safeProfile.role}
                         </div>
@@ -213,22 +213,22 @@ export default function ProfilePage() {
 
             <div className="px-4 pb-6 space-y-4">
                 <div
-                    className="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-slate-200 flex items-center gap-3 sm:gap-4 cursor-pointer hover:border-primary/20 transition-colors group overflow-hidden"
+                    className="bg-white p-4 sm:p-6 rounded-3xl shadow-sm border border-slate-200 flex flex-col xs:flex-row sm:flex-row items-center sm:items-center gap-3 sm:gap-4 cursor-pointer hover:border-primary/20 transition-colors group overflow-hidden max-[380px]:flex-col"
                     onClick={() => navigate('/cat')}
                 >
-                    <div className="bg-slate-50 p-2.5 sm:p-3 rounded-3xl group-hover:bg-slate-100 transition-colors shrink-0">
+                    <div className="bg-slate-50 p-2 rounded-3xl group-hover:bg-slate-100 transition-colors shrink-0 w-full max-w-[120px] sm:max-w-none sm:w-auto flex justify-center">
                         <CatOleg
                             equippedItemIds={[]}
                             ownedItems={[]}
                             catSkinLottieSrc={resolveCatSkinLottieUrl(catEquipped, catOwnedItems)}
-                            size="md"
+                            size="sm"
                             interactive={false}
                             enableIdleFloat={false}
                         />
                     </div>
-                    <div className="flex-1 min-w-0 pr-1">
-                        <h3 className="text-sm font-bold text-slate-800">Кот Олег</h3>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                    <div className="flex-1 min-w-0 w-full text-center sm:text-left pr-0 sm:pr-1">
+                        <h3 className="text-sm font-bold text-slate-800 break-words">Кот Олег</h3>
+                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug break-words">
                             {catOwnedItems.length > 0 ? 'Выбран анимированный кот' : 'Ваш кот ждет обновок!'}
                         </p>
                     </div>
@@ -328,3 +328,4 @@ export default function ProfilePage() {
         </div>
     );
 }
+
